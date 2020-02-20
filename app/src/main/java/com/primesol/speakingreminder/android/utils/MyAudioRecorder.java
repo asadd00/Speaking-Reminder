@@ -1,4 +1,4 @@
-package com.primesol.speakingreminder.android;
+package com.primesol.speakingreminder.android.utils;
 
 import java.io.File;
 import java.io.IOException;

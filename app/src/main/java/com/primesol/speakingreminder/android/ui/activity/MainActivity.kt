@@ -1,4 +1,4 @@
-package com.primesol.speakingreminder.android
+package com.primesol.speakingreminder.android.ui.activity
 
 import android.Manifest
 import android.app.DatePickerDialog
@@ -8,11 +8,11 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.DatePicker
-import android.widget.TimePicker
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.model.Reminder
+import com.primesol.speakingreminder.android.repository.ReminderDB
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private var pickedDay: String? = null
     private var pickedMonth: String? = null
     private var pickedYear: String? = null
+    private var reminderDb: ReminderDB? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun init(){
         dateFormat = SimpleDateFormat("ddMMyy-hhmm")
+        reminderDb = ReminderDB.getInstance(baseContext)
         bStart.setOnClickListener {
             if (!hasPermissions()) {return@setOnClickListener}
 
@@ -58,6 +60,13 @@ class MainActivity : AppCompatActivity() {
 
             isRecording = !isRecording
         }
+
+        Thread(Runnable {
+            val list = reminderDb?.reminderDao()?.getReminderList() as List<Reminder>
+            for(rem in list){
+                Log.d(TAG, "Rem: ${rem.id} | ${rem.title} | ${rem.audio} | ${rem.createdAt} | ${rem.date} | ${rem.time}")
+            }
+        }).start()
     }
 
     private fun startRecording(){
@@ -167,5 +176,16 @@ class MainActivity : AppCompatActivity() {
     private fun saveReminder(){
         Log.d(TAG, "filePath: $outputFilePath")
         Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
+
+        Thread(Runnable {
+            val reminder = Reminder()
+            reminder.title = "Room Test"
+            reminder.audio = outputFilePath!!
+            reminder.createdAt = dateFormat.format(Date())
+            reminder.date = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
+            reminder.time = String.format("%s:%s", pickedHour, pickedMinute)
+            reminderDb?.reminderDao()?.insertReminder(reminder)
+            Log.d(TAG, "data inserted")
+        }).start()
     }
 }
