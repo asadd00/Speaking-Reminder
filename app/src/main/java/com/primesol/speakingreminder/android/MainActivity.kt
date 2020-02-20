@@ -1,16 +1,22 @@
 package com.primesol.speakingreminder.android
 
 import android.Manifest
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.DatePicker
+import android.widget.TimePicker
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +28,13 @@ class MainActivity : AppCompatActivity() {
 
     private var isRecording = false
     private val RC_PERMISSIONS = 1001
+    private lateinit var dateFormat: SimpleDateFormat
+    private var outputFilePath: String? = null
+    private var pickedHour: String? = null
+    private var pickedMinute: String? = null
+    private var pickedDay: String? = null
+    private var pickedMonth: String? = null
+    private var pickedYear: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init(){
+        dateFormat = SimpleDateFormat("ddMMyy-hhmm")
         bStart.setOnClickListener {
             if (!hasPermissions()) {return@setOnClickListener}
 
@@ -63,13 +77,13 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "stopRecording")
         mediaRecorder?.stop()
         mediaRecorder?.release()
-
+        showTimePickerDialog()
     }
 
     private fun initRecorder(){
         val fileParent = getExternalFilesDir(null)?.absolutePath
-        val outputFilePath = "$fileParent/sr.wav"
-        Log.d(TAG, "fileParent: $outputFilePath")
+        outputFilePath = "$fileParent/sr-${dateFormat.format(Date())}.mp3"
+        Log.d(TAG, "outputFilePath: $outputFilePath")
 
         mediaRecorder= MediaRecorder()
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -117,5 +131,41 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showTimePickerDialog(){
+        val cal = Calendar.getInstance()
+        val dialog = TimePickerDialog(this@MainActivity,
+            TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
+                pickedHour = hourOfDay.toString(); pickedMinute = minute.toString()
+                if(pickedHour?.length == 1) pickedHour = "0${pickedHour}"
+                if(pickedMinute?.length == 1) pickedMinute = "0${pickedMinute}"
+
+                showDatePickerDialog()
+            },
+            cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true)
+        dialog.show()
+    }
+
+    private fun showDatePickerDialog(){
+        val cal = Calendar.getInstance()
+        val dialog = DatePickerDialog(this@MainActivity,
+            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+                pickedYear = year.toString()
+                pickedMonth = (month+1).toString()
+                pickedDay = dayOfMonth.toString()
+
+                if(pickedMonth?.length == 1) pickedMonth = "0${pickedMonth}"
+                if(pickedDay?.length == 1) pickedDay = "0${pickedDay}"
+
+                saveReminder()
+            },
+            cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+        dialog.show()
+    }
+
+    private fun saveReminder(){
+        Log.d(TAG, "filePath: $outputFilePath")
+        Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
     }
 }
