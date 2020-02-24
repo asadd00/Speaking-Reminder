@@ -9,11 +9,14 @@ interface ReminderDao {
     fun getReminderList(): List<Reminder>
 
     @Insert
-    fun insertReminder(reminder: Reminder)
+    fun insertReminder(reminder: Reminder): Long
 
     @Update
     fun updateReminder(reminder: Reminder)
 
     @Delete
     fun deleteReminder(reminder: Reminder)
+
+    @Query("Select * from reminder Where id=:id")
+    fun getReminder(id: String): Reminder
 }

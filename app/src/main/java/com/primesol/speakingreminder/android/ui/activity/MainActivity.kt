@@ -1,17 +1,23 @@
 package com.primesol.speakingreminder.android.ui.activity
 
 import android.Manifest
+import android.app.AlarmManager
 import android.app.DatePickerDialog
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
+import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
@@ -92,7 +98,6 @@ class MainActivity : AppCompatActivity() {
     private fun initRecorder(){
         val fileParent = getExternalFilesDir(null)?.absolutePath
         outputFilePath = "$fileParent/sr-${dateFormat.format(Date())}.mp3"
-        Log.d(TAG, "outputFilePath: $outputFilePath")
 
         mediaRecorder= MediaRecorder()
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -176,16 +181,26 @@ class MainActivity : AppCompatActivity() {
     private fun saveReminder(){
         Log.d(TAG, "filePath: $outputFilePath")
         Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
+        val reminder = Reminder()
+        reminder.title = "Room Test"
+        reminder.audio = outputFilePath!!
+        reminder.createdAt = dateFormat.format(Date())
+        reminder.date = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
+        reminder.time = String.format("%s:%s", pickedHour, pickedMinute)
 
         Thread(Runnable {
-            val reminder = Reminder()
-            reminder.title = "Room Test"
-            reminder.audio = outputFilePath!!
-            reminder.createdAt = dateFormat.format(Date())
-            reminder.date = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
-            reminder.time = String.format("%s:%s", pickedHour, pickedMinute)
-            reminderDb?.reminderDao()?.insertReminder(reminder)
-            Log.d(TAG, "data inserted")
+            val id: Long? = reminderDb?.reminderDao()?.insertReminder(reminder)
+
+            val cal = Calendar.getInstance()
+            cal.set(Calendar.MONTH, (pickedMonth?.toInt()!!)-1)
+            cal.set(Calendar.YEAR, (pickedYear?.toInt()!!))
+            cal.set(Calendar.DAY_OF_MONTH, (pickedDay?.toInt()!!))
+            cal.set(Calendar.HOUR_OF_DAY, (pickedHour?.toInt()!!))
+            cal.set(Calendar.MINUTE, (pickedMinute?.toInt()!!))
+            cal.set(Calendar.SECOND, 0)
+
+            ReminderReceiver.setAlarm(baseContext, cal, id?.toInt()!!)
+
         }).start()
     }
 }

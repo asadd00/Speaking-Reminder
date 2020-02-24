@@ -2,6 +2,7 @@ package com.primesol.speakingreminder.android.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "reminder")
@@ -18,4 +19,9 @@ class Reminder {
     var audio: String = ""
     @ColumnInfo(name = "createdAt")
     var createdAt: String = ""
+
+    companion object{
+        @Ignore
+        val REMINDER_ID = "reminderId"
+    }
 }
