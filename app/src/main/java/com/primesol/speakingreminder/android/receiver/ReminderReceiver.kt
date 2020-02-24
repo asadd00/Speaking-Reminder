@@ -6,8 +6,11 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Context.POWER_SERVICE
 import android.content.Intent
+import android.os.PowerManager
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
@@ -28,6 +31,14 @@ class ReminderReceiver: BroadcastReceiver() {
 
                 Log.d(TAG, "Reminder fetched with id: ${reminder?.id}")
                 showNotification(context, reminder!!)
+
+//                val pm = context.getSystemService(POWER_SERVICE) as PowerManager
+//                //val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
+//                val wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP or
+//                        PowerManager.ON_AFTER_RELEASE, TAG)
+//                wl.acquire()
+//                Toast.makeText(context, "Reminder ID: $reminderId", Toast.LENGTH_LONG).show()
+//                wl.release()
 
             }).start()
         }

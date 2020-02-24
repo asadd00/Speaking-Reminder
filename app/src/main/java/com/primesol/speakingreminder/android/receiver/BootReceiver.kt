@@ -10,7 +10,7 @@ class BootReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d(TAG, "onReceive")
-        if(intent != null && intent.action == "android.intent.action.BOOT_COMPLETED"){
+        if(intent != null && intent.action == Intent.ACTION_BOOT_COMPLETED){
             //recreate all alarms by fetching from db
         }
     }
