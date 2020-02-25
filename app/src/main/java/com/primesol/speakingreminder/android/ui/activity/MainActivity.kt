@@ -27,10 +27,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "ttt ${this::class.java.simpleName}"
-    /////// recorder config start ///////
-    private val sampleRates = intArrayOf(44100, 22050, 11025, 8000)
     private var mediaRecorder: MediaRecorder? = null
-    /////// recorder config end ///////
 
     private var isRecording = false
     private val RC_PERMISSIONS = 1001
@@ -125,15 +122,17 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    fun getPermissions() {
-        requestPermissions(
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ),
-            RC_PERMISSIONS
-        )
+    private fun getPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                RC_PERMISSIONS
+            )
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

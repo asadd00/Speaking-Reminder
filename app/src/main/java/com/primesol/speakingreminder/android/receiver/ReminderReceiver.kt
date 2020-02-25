@@ -10,11 +10,13 @@ import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.os.PowerManager
 import android.util.Log
-import android.widget.Toast
+import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.service.PopupReminderService
+import com.primesol.speakingreminder.android.ui.activity.PopupReminderActivity
 import java.util.*
 
 class ReminderReceiver: BroadcastReceiver() {
@@ -30,15 +32,14 @@ class ReminderReceiver: BroadcastReceiver() {
                 reminder = reminderDB.reminderDao()?.getReminder(reminderId.toString())
 
                 Log.d(TAG, "Reminder fetched with id: ${reminder?.id}")
-                showNotification(context, reminder!!)
+                //showNotification(context, reminder!!)
+                //startActivity(context, reminder!!)
 
-//                val pm = context.getSystemService(POWER_SERVICE) as PowerManager
-//                //val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
-//                val wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP or
-//                        PowerManager.ON_AFTER_RELEASE, TAG)
-//                wl.acquire()
-//                Toast.makeText(context, "Reminder ID: $reminderId", Toast.LENGTH_LONG).show()
-//                wl.release()
+                val pm = context.getSystemService(POWER_SERVICE) as PowerManager
+                val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
+                wl.acquire()
+                startForegroundService(context, reminder!!)
+                wl.release()
 
             }).start()
         }
@@ -50,6 +51,19 @@ class ReminderReceiver: BroadcastReceiver() {
         builder.setSmallIcon(R.drawable.ic_dummy_clock)
         val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(1, builder.build())
+    }
+
+    private fun startActivity(context: Context, reminder: Reminder){
+        val intent = Intent(context, PopupReminderActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.putExtra(Reminder.REMINDER, reminder)
+        context.startActivity(intent)
+    }
+
+    private fun startForegroundService(context: Context, reminder: Reminder){
+        val intent = Intent(context, PopupReminderService::class.java)
+        intent.putExtra(Reminder.REMINDER, reminder)
+        context.startService(intent)
     }
 
     companion object{
