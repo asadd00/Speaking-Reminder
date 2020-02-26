@@ -37,6 +37,8 @@
             android:name=".service.PopupReminderService"
             android:enabled="true"
             android:exported="true" />
+        <service android:name=".service.PopupReminderJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

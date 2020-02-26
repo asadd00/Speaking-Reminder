@@ -3,21 +3,26 @@ package com.primesol.speakingreminder.android.receiver
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
-import android.content.Context.POWER_SERVICE
+import android.content.Context.*
 import android.content.Intent
+import android.os.PersistableBundle
 import android.os.PowerManager
 import android.util.Log
-import android.view.WindowManager
 import androidx.core.app.NotificationCompat
+import com.google.gson.Gson
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.service.PopupReminderJobService
 import com.primesol.speakingreminder.android.service.PopupReminderService
 import com.primesol.speakingreminder.android.ui.activity.PopupReminderActivity
 import java.util.*
+
 
 class ReminderReceiver: BroadcastReceiver() {
     private val TAG = "ttt ${this::class.java.simpleName}"
@@ -36,14 +41,21 @@ class ReminderReceiver: BroadcastReceiver() {
                 //startActivity(context, reminder!!)
 
                 val pm = context.getSystemService(POWER_SERVICE) as PowerManager
-                val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG)
-                wl.acquire()
-                startForegroundService(context, reminder!!)
-                wl.release()
+                if(!pm.isInteractive){
+                    val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG)
+                    wl.acquire(3000)
+                    startActivity(context, reminder!!)
+                    //startForegroundService(context, reminder)
+                    //scheduleJob(context, reminder!!)
+                    wl.release()
+                }
 
             }).start()
         }
     }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private fun showNotification(context: Context, reminder: Reminder){
         val builder = NotificationCompat.Builder(context, context.packageName)
@@ -65,6 +77,21 @@ class ReminderReceiver: BroadcastReceiver() {
         intent.putExtra(Reminder.REMINDER, reminder)
         context.startService(intent)
     }
+
+    private fun scheduleJob(context: Context, reminder: Reminder){
+        val bundle = PersistableBundle()
+        bundle.putString(Reminder.REMINDER, Gson().toJson(reminder))
+
+        val componentName = ComponentName(context, PopupReminderJobService::class.java)
+        val jobInfo = JobInfo.Builder(0, componentName)
+        jobInfo.setMinimumLatency(1*1000)
+        jobInfo.setOverrideDeadline(3*1000)
+        jobInfo.setExtras(bundle)
+        val jobScheduler = context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(jobInfo.build())
+    }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     companion object{
         fun setAlarm(context: Context, calendar: Calendar, reminderId: Int){
