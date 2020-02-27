@@ -59,11 +59,11 @@ class HomeFragment : Fragment() {
 
             if(isRecording){
                 stopRecording()
-                bStart.text = "Start"
+                bStart.text = getString(R.string.start)
             }
             else{
                 startRecording()
-                bStart.text = "Stop"
+                bStart.text = getString(R.string.stop)
             }
 
             isRecording = !isRecording

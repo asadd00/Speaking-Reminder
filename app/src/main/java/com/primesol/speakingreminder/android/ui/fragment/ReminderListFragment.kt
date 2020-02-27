@@ -47,7 +47,6 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
     }
 
     override fun onListItemClick(reminder: Reminder, position: Int) {
-        Log.d(TAG, "onListItemClick")
         view?.findNavController()?.navigate(R.id.actionToReminderDetailsFragment, bundleOf(Pair(Reminder.REMINDER, reminder)))
     }
 }
