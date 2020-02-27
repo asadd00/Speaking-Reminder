@@ -1,6 +1,7 @@
 package com.primesol.speakingreminder.android.receiver
 
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.job.JobInfo
@@ -10,6 +11,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.*
 import android.content.Intent
+import android.media.MediaPlayer
+import android.os.Build
 import android.os.PersistableBundle
 import android.os.PowerManager
 import android.util.Log
@@ -21,48 +24,77 @@ import com.primesol.speakingreminder.android.repository.ReminderDB
 import com.primesol.speakingreminder.android.service.PopupReminderJobService
 import com.primesol.speakingreminder.android.service.PopupReminderService
 import com.primesol.speakingreminder.android.ui.activity.PopupReminderActivity
+import com.primesol.speakingreminder.android.utils.Defaults
+import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import java.util.*
 
 
 class ReminderReceiver: BroadcastReceiver() {
     private val TAG = "ttt ${this::class.java.simpleName}"
+    private var mediaPlayer: MediaPlayer? = null
+
+    init {
+        initMediaPlayer()
+    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d(TAG, "onReceive")
-        if(intent != null){
-            val reminderId = intent.getIntExtra(Reminder.REMINDER_ID, 0)
-            val reminderDB = ReminderDB.getInstance(context!!)
-            Thread(Runnable {
-                var reminder: Reminder? = null
-                reminder = reminderDB.reminderDao()?.getReminder(reminderId.toString())
+        if(intent != null && intent.action != null){
+            if(intent.action == ACTION_REMINDER_TRIGGERED){
+                val reminderId = intent.getIntExtra(Reminder.REMINDER_ID, 0)
+                val reminderDB = ReminderDB.getInstance(context!!)
+                Thread(Runnable {
+                    var reminder: Reminder? = null
+                    reminder = reminderDB.reminderDao()?.getReminder(reminderId.toString())
 
-                Log.d(TAG, "Reminder fetched with id: ${reminder?.id}")
-                //showNotification(context, reminder!!)
-                //startActivity(context, reminder!!)
+                    Log.d(TAG, "Reminder fetched with id: ${reminder?.id}")
+                    startAudio(reminder?.audio!!)
+                    showNotification(context, true, reminder)
+                    //showNotification(context, reminder!!)
+                    //startActivity(context, reminder!!)
 
-                val pm = context.getSystemService(POWER_SERVICE) as PowerManager
-                if(!pm.isInteractive){
-                    val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG)
-                    wl.acquire(3000)
-                    startActivity(context, reminder!!)
-                    //startForegroundService(context, reminder)
-                    //scheduleJob(context, reminder!!)
-                    wl.release()
-                }
+//                val pm = context.getSystemService(POWER_SERVICE) as PowerManager
+//                if(!pm.isInteractive){
+//                    val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG)
+//                    wl.acquire(3000)
+//                    //startForegroundService(context, reminder)
+//                    //scheduleJob(context, reminder!!)
+//                    wl.release()
+//                }
 
-            }).start()
+                }).start()
+            }
+            else if(intent.action == ACTION_DISMISS_REMINDER){
+                val notificationManager = context?.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancelAll()
+                stopAudio()
+            }
         }
     }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private fun showNotification(context: Context, addAction: Boolean, reminder: Reminder) {
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationCompat.Builder(context, context.packageName) }
+        else { NotificationCompat.Builder(context) }
 
-    private fun showNotification(context: Context, reminder: Reminder){
-        val builder = NotificationCompat.Builder(context, context.packageName)
         builder.setContentTitle(reminder.title)
+        builder.setContentText("")
         builder.setSmallIcon(R.drawable.ic_dummy_clock)
+        if(addAction) {
+            val intent = Intent(context, ReminderReceiver::class.java)
+            intent.action = ACTION_DISMISS_REMINDER
+            intent.putExtra(Defaults.DISMISS, true)
+            val pIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+            val action = NotificationCompat.Action.Builder(0, context.getString(R.string.dismiss), pIntent).build()
+            builder.addAction(action!!)
+        }
+
         val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1, builder.build())
+        val note = builder.build()
+        note.flags = Notification.FLAG_NO_CLEAR or Notification.FLAG_ONGOING_EVENT
+        notificationManager.notify(1, note)
     }
 
     private fun startActivity(context: Context, reminder: Reminder){
@@ -94,13 +126,45 @@ class ReminderReceiver: BroadcastReceiver() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     companion object{
+        val ACTION_REMINDER_TRIGGERED = "com.primesol.speakingreminder.android.ACTION_REMINDER_TRIGGERED"
+        val ACTION_DISMISS_REMINDER = "com.primesol.speakingreminder.android.ACTION_DISMISS_REMINDER"
+
         fun setAlarm(context: Context, calendar: Calendar, reminderId: Int){
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, ReminderReceiver::class.java)
+            intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminderId)
             val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        }
+    }
+
+    private fun startAudio(uri: String){
+        try {
+            mediaPlayer?.setDataSource(uri)
+            mediaPlayer?.prepare()
+            mediaPlayer?.start();
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun stopAudio(){
+        try {
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun initMediaPlayer(){
+        mediaPlayer = MediaPlayerTon.getInstance()
+        mediaPlayer?.isLooping = true
+        mediaPlayer?.setOnPreparedListener {
+
+        }
+        mediaPlayer?.setOnCompletionListener {
+
         }
     }
 }
