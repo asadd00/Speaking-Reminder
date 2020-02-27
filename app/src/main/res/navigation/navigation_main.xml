@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.primesol.speakingreminder.android.ui.fragment.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/actionToReminderListFragment"
+            app:destination="@id/reminderListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/reminderListFragment"
+        android:name="com.primesol.speakingreminder.android.ui.fragment.ReminderListFragment"
+        android:label="fragment_reminder_list"
+        tools:layout="@layout/fragment_reminder_list" >
+        <action
+            android:id="@+id/actionToReminderDetailsFragment"
+            app:destination="@id/reminderDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/reminderDetailsFragment"
+        android:name="com.primesol.speakingreminder.android.ui.fragment.ReminderDetailsFragment"
+        android:label="fragment_reminder_details"
+        tools:layout="@layout/fragment_reminder_details" />
+</navigation>
