@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeFragment : Fragment() {
-
     private val TAG = "ttt ${this::class.java.simpleName}"
     private var mediaRecorder: MediaRecorder? = null
 
@@ -69,13 +68,6 @@ class HomeFragment : Fragment() {
 
             isRecording = !isRecording
         }
-
-//        Thread(Runnable {
-//            val list = reminderDb?.reminderDao()?.getReminderList() as List<Reminder>
-//            for(rem in list){
-//                Log.d(TAG, "Rem: ${rem.id} | ${rem.title} | ${rem.audio} | ${rem.createdAt} | ${rem.date} | ${rem.time}")
-//            }
-//        }).start()
 
         bReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
     }
