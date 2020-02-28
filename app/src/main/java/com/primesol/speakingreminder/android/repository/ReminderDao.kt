@@ -19,4 +19,7 @@ interface ReminderDao {
 
     @Query("Select * from reminder Where id=:id")
     fun getReminder(id: String): Reminder
+
+    @Query("Select * from reminder Where dateTime=:dateTime")
+    fun getReminderWithDateTime(dateTime: String): Reminder
 }

@@ -29,7 +29,7 @@ class ReminderAdpater: RecyclerView.Adapter<ReminderAdpater.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val reminder = list[position]
         holder.tvTitle.text = reminder.title
-        holder.tvTime.text = String.format("%s %s", reminder.date, reminder.time)
+        holder.tvTime.text = reminder.dateTime
         holder.tvStatus.text = "Not implemented"
     }
 

@@ -52,7 +52,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
-        dateFormat = SimpleDateFormat("ddMMyy-hhmm")
+        dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
         bStart.setOnClickListener {
             if (!hasPermissions()) {return@setOnClickListener}
@@ -184,23 +184,40 @@ class HomeFragment : Fragment() {
         reminder.title = "Room Test"
         reminder.audio = outputFilePath!!
         reminder.createdAt = dateFormat.format(Date())
-        reminder.date = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
-        reminder.time = String.format("%s:%s", pickedHour, pickedMinute)
+        reminder.dateTime = String.format(getString(R.string.db_date_format1), pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute)
+
+        val cal = Calendar.getInstance()
+        cal.set(Calendar.MONTH, (pickedMonth?.toInt()!!)-1)
+        cal.set(Calendar.YEAR, (pickedYear?.toInt()!!))
+        cal.set(Calendar.DAY_OF_MONTH, (pickedDay?.toInt()!!))
+        cal.set(Calendar.HOUR_OF_DAY, (pickedHour?.toInt()!!))
+        cal.set(Calendar.MINUTE, (pickedMinute?.toInt()!!))
+        cal.set(Calendar.SECOND, 0)
 
         Thread(Runnable {
             val id: Long? = reminderDb?.reminderDao()?.insertReminder(reminder)
-
-            val cal = Calendar.getInstance()
-            cal.set(Calendar.MONTH, (pickedMonth?.toInt()!!)-1)
-            cal.set(Calendar.YEAR, (pickedYear?.toInt()!!))
-            cal.set(Calendar.DAY_OF_MONTH, (pickedDay?.toInt()!!))
-            cal.set(Calendar.HOUR_OF_DAY, (pickedHour?.toInt()!!))
-            cal.set(Calendar.MINUTE, (pickedMinute?.toInt()!!))
-            cal.set(Calendar.SECOND, 0)
-
             ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!)
 
         }).start()
     }
+
+//    private fun isReminderTimeValid(calendar: Calendar){
+//        val dateFormat = SimpleDateFormat(context?.getString(R.string.db_date_format))
+//        val dateTemp1 = Date(calendar.timeInMillis)
+//        val date1 = dateFormat.format(dateTemp1)
+//
+//        val reminderDB = ReminderDB.getInstance(context!!)
+//        Thread(Runnable {
+//            var reminder: Reminder? = null
+//            Log.d(TAG, "date1: $date1")
+//            reminder = reminderDB.reminderDao()?.getReminderWithDateTime(date1.toString())
+//            if(reminder == null){
+//                Log.d(TAG, "no reminder")
+//            }
+//            else {
+//                Log.d(TAG, "reminder found id: ${reminder.id}")
+//            }
+//        }).start()
+//    }
 
 }

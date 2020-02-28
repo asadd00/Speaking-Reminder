@@ -12,10 +12,8 @@ class Reminder: Serializable {
     var id: Int? = null
     @ColumnInfo(name = "title")
     var title: String = ""
-    @ColumnInfo(name = "date")
-    var date: String = ""
-    @ColumnInfo(name = "time")
-    var time: String = ""
+    @ColumnInfo(name = "dateTime")
+    var dateTime: String = ""
     @ColumnInfo(name = "audio")
     var audio: String = ""
     @ColumnInfo(name = "createdAt")

@@ -31,7 +31,7 @@ class ReminderDetailsFragment : Fragment() {
         if(arguments != null){
             val reminder = arguments?.getSerializable(Reminder.REMINDER) as Reminder
             tvTitle.text = reminder.title
-            tvTime.text = String.format("%s %s", reminder.date, reminder.time)
+            tvTime.text = reminder.dateTime
             tvStatus.text = "Not implemented"
 
             bDelete.setOnClickListener {

@@ -30,7 +30,6 @@ import java.util.*
 
 
 class ReminderReceiver: BroadcastReceiver() {
-    private val TAG = "ttt ${this::class.java.simpleName}"
     private var mediaPlayer: MediaPlayer? = null
 
     init {
@@ -126,6 +125,7 @@ class ReminderReceiver: BroadcastReceiver() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     companion object{
+        private val TAG = "ttt ${this::class.java.simpleName}"
         val ACTION_REMINDER_TRIGGERED = "com.primesol.speakingreminder.android.ACTION_REMINDER_TRIGGERED"
         val ACTION_DISMISS_REMINDER = "com.primesol.speakingreminder.android.ACTION_DISMISS_REMINDER"
 
