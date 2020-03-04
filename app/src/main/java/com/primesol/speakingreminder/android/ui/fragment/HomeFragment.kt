@@ -1,6 +1,7 @@
 package com.primesol.speakingreminder.android.ui.fragment
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
@@ -195,29 +196,29 @@ class HomeFragment : Fragment() {
         cal.set(Calendar.SECOND, 0)
 
         Thread(Runnable {
+            val alreadyReminder = reminderDb?.reminderDao()?.getReminderWithDateTime(reminder.dateTime)
+            if(alreadyReminder != null){
+                activity?.runOnUiThread { showDuplicateReminderErrorDialog() }
+                return@Runnable
+            }
+
             val id: Long? = reminderDb?.reminderDao()?.insertReminder(reminder)
             ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!)
 
         }).start()
     }
 
-//    private fun isReminderTimeValid(calendar: Calendar){
-//        val dateFormat = SimpleDateFormat(context?.getString(R.string.db_date_format))
-//        val dateTemp1 = Date(calendar.timeInMillis)
-//        val date1 = dateFormat.format(dateTemp1)
-//
-//        val reminderDB = ReminderDB.getInstance(context!!)
-//        Thread(Runnable {
-//            var reminder: Reminder? = null
-//            Log.d(TAG, "date1: $date1")
-//            reminder = reminderDB.reminderDao()?.getReminderWithDateTime(date1.toString())
-//            if(reminder == null){
-//                Log.d(TAG, "no reminder")
-//            }
-//            else {
-//                Log.d(TAG, "reminder found id: ${reminder.id}")
-//            }
-//        }).start()
-//    }
+    private fun showDuplicateReminderErrorDialog(){
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.duplicate_reminder)
+        builder.setMessage(R.string.m_duplicate_reminder)
+        builder.setCancelable(false)
+        builder.setNegativeButton(R.string.dismiss){
+            dialog,_ ->
+            showTimePickerDialog()
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
 
 }

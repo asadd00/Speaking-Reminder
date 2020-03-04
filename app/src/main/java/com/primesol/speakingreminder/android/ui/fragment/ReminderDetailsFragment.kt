@@ -10,6 +10,7 @@ import androidx.navigation.findNavController
 
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
+import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import kotlinx.android.synthetic.main.fragment_reminder_details.*
 
@@ -38,6 +39,7 @@ class ReminderDetailsFragment : Fragment() {
                 val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
                 Thread(Runnable {
                     reminderDb?.reminderDao()?.deleteReminder(reminder)
+                    ReminderReceiver.deleteAlarm(context!!, reminder)
                     view?.findNavController()?.popBackStack()
                 }).start()
             }

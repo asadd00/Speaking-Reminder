@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.primesol.speakingreminder.android.model.Reminder
 
 
-@Database(entities = [Reminder::class], exportSchema = false, version = 1)
+@Database(entities = [Reminder::class], exportSchema = false, version = 2)
 abstract class ReminderDB: RoomDatabase() {
     companion object{
         private val DB_NAME = "ReminderDB"

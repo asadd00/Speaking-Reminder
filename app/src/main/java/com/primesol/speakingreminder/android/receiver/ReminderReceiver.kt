@@ -134,9 +134,17 @@ class ReminderReceiver: BroadcastReceiver() {
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminderId)
-            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        }
+        fun deleteAlarm(context: Context, reminder: Reminder){
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, ReminderReceiver::class.java)
+            intent.action = ACTION_REMINDER_TRIGGERED
+            intent.putExtra(Reminder.REMINDER_ID, reminder.id)
+            val pendingIntent = PendingIntent.getBroadcast(context, reminder.id!!, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            alarmManager.cancel(pendingIntent)
         }
     }
 
