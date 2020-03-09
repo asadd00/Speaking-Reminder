@@ -13,6 +13,7 @@ import android.content.Context.*
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.PersistableBundle
 import android.os.PowerManager
 import android.util.Log
@@ -26,11 +27,14 @@ import com.primesol.speakingreminder.android.service.PopupReminderService
 import com.primesol.speakingreminder.android.ui.activity.PopupReminderActivity
 import com.primesol.speakingreminder.android.utils.Defaults
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
+import java.io.File
 import java.util.*
 
 
 class ReminderReceiver: BroadcastReceiver() {
     private var mediaPlayer: MediaPlayer? = null
+    private var context: Context? = null
+    private var timer: CountDownTimer? = null
 
     init {
         initMediaPlayer()
@@ -38,6 +42,7 @@ class ReminderReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d(TAG, "onReceive")
+        this.context = context
         if(intent != null && intent.action != null){
             if(intent.action == ACTION_REMINDER_TRIGGERED){
                 val reminderId = intent.getIntExtra(Reminder.REMINDER_ID, 0)
@@ -64,8 +69,7 @@ class ReminderReceiver: BroadcastReceiver() {
                 }).start()
             }
             else if(intent.action == ACTION_DISMISS_REMINDER){
-                val notificationManager = context?.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.cancelAll()
+
                 stopAudio()
             }
         }
@@ -145,6 +149,11 @@ class ReminderReceiver: BroadcastReceiver() {
             intent.putExtra(Reminder.REMINDER_ID, reminder.id)
             val pendingIntent = PendingIntent.getBroadcast(context, reminder.id!!, intent, PendingIntent.FLAG_CANCEL_CURRENT)
             alarmManager.cancel(pendingIntent)
+            //delete audio file
+            try {
+                val file = File(reminder.audio)
+                if(file.exists()) file.delete()
+            }catch (e: java.lang.Exception){e.printStackTrace()}
         }
     }
 
@@ -152,15 +161,19 @@ class ReminderReceiver: BroadcastReceiver() {
         try {
             mediaPlayer?.setDataSource(uri)
             mediaPlayer?.prepare()
-            mediaPlayer?.start();
+            mediaPlayer?.start()
+            startPlayerTimer()
         }
         catch (e: Exception){e.printStackTrace()}
     }
 
     private fun stopAudio(){
         try {
+            val notificationManager = context?.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancelAll()
             mediaPlayer?.stop()
             mediaPlayer?.release()
+            stopPlayerTimer()
         }
         catch (e: Exception){e.printStackTrace()}
     }
@@ -168,11 +181,30 @@ class ReminderReceiver: BroadcastReceiver() {
     private fun initMediaPlayer(){
         mediaPlayer = MediaPlayerTon.getInstance()
         mediaPlayer?.isLooping = true
-        mediaPlayer?.setOnPreparedListener {
+        mediaPlayer?.setOnPreparedListener {}
+        mediaPlayer?.setOnCompletionListener {}
+    }
 
-        }
-        mediaPlayer?.setOnCompletionListener {
+    private fun startPlayerTimer(){
+        Log.d(TAG, "startPlayerTimer 0")
+        stopPlayerTimer()
+        Log.d(TAG, "startPlayerTimer 1")
+        timer = object: CountDownTimer(15000,1000){
+            override fun onFinish() {
+                try {
+                    Log.d(TAG, "onFinish")
+                    stopAudio()
+                }catch (e: Exception){e.printStackTrace()}
+            }
 
+            override fun onTick(millisUntilFinished: Long) {Log.d(TAG, "onTick")}
         }
+        timer?.start()
+    }
+
+    private fun stopPlayerTimer(){
+        try {
+            timer?.cancel()
+        }catch (e: Exception){e.printStackTrace()}
     }
 }
