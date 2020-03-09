@@ -51,7 +51,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
-        //stopRipple()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 

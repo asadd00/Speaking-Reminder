@@ -186,9 +186,7 @@ class ReminderReceiver: BroadcastReceiver() {
     }
 
     private fun startPlayerTimer(){
-        Log.d(TAG, "startPlayerTimer 0")
         stopPlayerTimer()
-        Log.d(TAG, "startPlayerTimer 1")
         timer = object: CountDownTimer(15000,1000){
             override fun onFinish() {
                 try {
