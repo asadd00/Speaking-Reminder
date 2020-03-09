@@ -18,7 +18,9 @@ import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.rodolfonavalon.shaperipplelibrary.model.Circle
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_home.view.*
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -51,6 +53,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
+        stopRipple()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 
@@ -59,10 +62,12 @@ class HomeFragment : Fragment() {
         ivRecord.setOnTouchListener { v, event ->
             if(event.action == MotionEvent.ACTION_DOWN){
                 startRecording()
+                startRipple()
                 tvRecord.text = getString(R.string.stop)
             }
             else if(event.action == MotionEvent.ACTION_UP){
                 stopRecording()
+                stopRipple()
                 tvRecord.text = getString(R.string.start)
             }
 
@@ -89,6 +94,19 @@ class HomeFragment : Fragment() {
         mediaRecorder?.stop()
         mediaRecorder?.release()
         showTimePickerDialog()
+    }
+
+    private fun startRipple(){
+        shapeRipple.rippleShape = Circle()
+        shapeRipple.rippleColor = activity?.resources?.getColor(R.color.colorPrimary)!!
+        //shapeRipple.rippleDuration = 2000
+        //shapeRipple.isEnableRandomPosition = true
+        //shapeRipple.isEnableRandomColor = true
+        shapeRipple.startRipple()
+    }
+
+    private fun stopRipple(){
+        shapeRipple.stopRipple()
     }
 
     private fun initRecorder(){
