@@ -18,9 +18,7 @@ import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
-import com.rodolfonavalon.shaperipplelibrary.model.Circle
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_home.view.*
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,11 +51,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
-        stopRipple()
+        //stopRipple()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 
-        bReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
+        ivReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
 
         ivRecord.setOnTouchListener { v, event ->
             if(event.action == MotionEvent.ACTION_DOWN){
@@ -97,16 +95,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun startRipple(){
-        shapeRipple.rippleShape = Circle()
-        shapeRipple.rippleColor = activity?.resources?.getColor(R.color.colorPrimary)!!
-        //shapeRipple.rippleDuration = 2000
-        //shapeRipple.isEnableRandomPosition = true
-        //shapeRipple.isEnableRandomColor = true
-        shapeRipple.startRipple()
+        rippleEffect.startRippleAnimation()
     }
 
     private fun stopRipple(){
-        shapeRipple.stopRipple()
+        rippleEffect.stopRippleAnimation()
     }
 
     private fun initRecorder(){

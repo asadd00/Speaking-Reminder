@@ -42,5 +42,5 @@ dependencies {
     def navigation_version = "2.2.1"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
     implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
-    implementation 'com.rodolfonavalon:ShapeRippleLibrary:1.0.0'
+    implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
 }
