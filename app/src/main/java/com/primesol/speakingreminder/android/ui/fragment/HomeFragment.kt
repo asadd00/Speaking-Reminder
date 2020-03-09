@@ -9,10 +9,8 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 
@@ -55,22 +53,22 @@ class HomeFragment : Fragment() {
     private fun init(){
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
-        bStart.setOnClickListener {
-            if (!hasPermissions()) {return@setOnClickListener}
 
-            if(isRecording){
-                stopRecording()
-                bStart.text = getString(R.string.start)
-            }
-            else{
+        bReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
+
+        ivRecord.setOnTouchListener { v, event ->
+            if(event.action == MotionEvent.ACTION_DOWN){
                 startRecording()
-                bStart.text = getString(R.string.stop)
+                tvRecord.text = getString(R.string.stop)
+            }
+            else if(event.action == MotionEvent.ACTION_UP){
+                stopRecording()
+                tvRecord.text = getString(R.string.start)
             }
 
             isRecording = !isRecording
+            return@setOnTouchListener true
         }
-
-        bReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
     }
 
     private fun startRecording(){

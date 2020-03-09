@@ -7,11 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.HomeFragment">
 
-    <Button
-        android:id="@+id/bStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ImageView
+        android:id="@+id/ivRecord"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:text="@string/start"
+        android:src="@drawable/ic_dummy_clock"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,5 +27,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/start"
+        app:layout_constraintEnd_toEndOf="@+id/ivRecord"
+        app:layout_constraintStart_toStartOf="@+id/ivRecord"
+        app:layout_constraintTop_toBottomOf="@+id/ivRecord" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
