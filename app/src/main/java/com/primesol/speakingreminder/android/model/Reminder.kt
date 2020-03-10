@@ -18,11 +18,17 @@ class Reminder: Serializable {
     var audio: String = ""
     @ColumnInfo(name = "createdAt")
     var createdAt: String = ""
+    @ColumnInfo(name = "status")
+    var status: String = Status.STATUS_ACTIVE.name
 
     companion object{
         @Ignore
         val REMINDER = "reminder"
         @Ignore
         val REMINDER_ID = "reminderId"
+    }
+
+    enum class Status{
+        STATUS_ACTIVE, STATUS_INACTIVE, STATUS_PASSED
     }
 }

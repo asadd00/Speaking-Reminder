@@ -32,8 +32,7 @@
                 android:id="@+id/ivRecord"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/circle_primary_dark"
-                android:text="@string/start" />
+                android:src="@drawable/circle_primary_dark" />
 
             <ImageView
                 android:layout_width="match_parent"
@@ -74,9 +73,13 @@
         android:id="@+id/tvRecord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/start"
+        android:text="@string/press_hold_to_record"
+        android:textColor="@color/colorPrimary"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/rippleEffect"
         app:layout_constraintEnd_toEndOf="@+id/rippleEffect"
         app:layout_constraintStart_toStartOf="@+id/rippleEffect"
-        app:layout_constraintTop_toBottomOf="@+id/rippleEffect" />
+        app:layout_constraintTop_toTopOf="@+id/rippleEffect" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

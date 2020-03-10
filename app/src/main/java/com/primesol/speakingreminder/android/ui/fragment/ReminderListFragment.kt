@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.fragment_reminder_list.*
 
 class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener {
     private val TAG = "ttt ${this::class.java.simpleName}"
-    private val adapter = ReminderAdpater()
+    private var adapter: ReminderAdpater? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,8 +29,8 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        adapter.onListItemClickListener = this
+        adapter = ReminderAdpater(context!!)
+        adapter?.onListItemClickListener = this
         rvList.adapter = adapter
         fetchDataAndSetList()
     }
@@ -42,7 +42,7 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
 //            for(rem in list){
 //                Log.d(TAG, "Rem: ${rem.id} | ${rem.title} | ${rem.audio} | ${rem.createdAt} | ${rem.date} | ${rem.time}")
 //            }
-            activity?.runOnUiThread{ adapter.setData(list) }
+            activity?.runOnUiThread{ adapter?.setData(list) }
         }).start()
     }
 

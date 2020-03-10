@@ -56,16 +56,18 @@ class HomeFragment : Fragment() {
 
         ivReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
 
-        ivRecord.setOnTouchListener { v, event ->
+        ivRecord.setOnTouchListener { _, event ->
+            if(!hasPermissions()) return@setOnTouchListener true
+
             if(event.action == MotionEvent.ACTION_DOWN){
                 startRecording()
                 startRipple()
-                tvRecord.text = getString(R.string.stop)
+                tvRecord.text = getString(R.string.recording)
             }
             else if(event.action == MotionEvent.ACTION_UP){
                 stopRecording()
                 stopRipple()
-                tvRecord.text = getString(R.string.start)
+                tvRecord.text = getString(R.string.press_hold_to_record)
             }
 
             isRecording = !isRecording
@@ -190,9 +192,10 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "filePath: $outputFilePath")
         Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
         val reminder = Reminder()
-        reminder.title = "Room Test"
+        reminder.title = getString(R.string.untitled)
         reminder.audio = outputFilePath!!
         reminder.createdAt = dateFormat.format(Date())
+        reminder.status = Reminder.Status.STATUS_ACTIVE.name
         reminder.dateTime = String.format(getString(R.string.db_date_format1), pickedYear, pickedMonth, pickedDay, pickedHour, pickedMinute)
 
         val cal = Calendar.getInstance()

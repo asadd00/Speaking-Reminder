@@ -2,10 +2,9 @@
     <string name="app_name">Speaking Reminder</string>
     <string name="dismiss">Dismiss</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="start">Start</string>
-    <string name="stop">Stop</string>
+    <string name="recording">Recording</string>
+    <string name="press_hold_to_record">Press &amp; hold to record</string>
     <string name="title">Title</string>
     <string name="time">Time</string>
     <string name="status">Status</string>
@@ -15,4 +14,5 @@
     <string name="db_date_format1">%s-%s-%s_%s-%s</string>
     <string name="m_duplicate_reminder">Reminder already set for this time. You can not set multiple reminders for same time.</string>
     <string name="duplicate_reminder">Duplicate Reminder Time</string>
+    <string name="untitled">Untitled</string>
 </resources>

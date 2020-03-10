@@ -54,18 +54,9 @@ class ReminderReceiver: BroadcastReceiver() {
                     Log.d(TAG, "Reminder fetched with id: ${reminder?.id}")
                     startAudio(reminder?.audio!!)
                     showNotification(context, true, reminder)
-                    //showNotification(context, reminder!!)
-                    //startActivity(context, reminder!!)
 
-//                val pm = context.getSystemService(POWER_SERVICE) as PowerManager
-//                if(!pm.isInteractive){
-//                    val wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG)
-//                    wl.acquire(3000)
-//                    //startForegroundService(context, reminder)
-//                    //scheduleJob(context, reminder!!)
-//                    wl.release()
-//                }
-
+                    reminder.status = Reminder.Status.STATUS_PASSED.name
+                    reminderDB.reminderDao()?.updateReminder(reminder)
                 }).start()
             }
             else if(intent.action == ACTION_DISMISS_REMINDER){
