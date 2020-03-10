@@ -6,15 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
-import com.primesol.speakingreminder.android.receiver.ReminderReceiver
-import com.primesol.speakingreminder.android.repository.ReminderDB
 
 class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpater.ViewHolder>() {
-    private var list = ArrayList<Reminder>()
+    var list = ArrayList<Reminder>()
     var onListItemClickListener: OnListItemClickListener? = null
 
     fun setData(list: ArrayList<Reminder>){
@@ -53,28 +50,25 @@ class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpate
 
         init {
             view.setOnClickListener {
-                if(onListItemClickListener != null) onListItemClickListener?.onListItemClick(list[layoutPosition], layoutPosition)
+                if(onListItemClickListener != null)
+                    onListItemClickListener?.onListItemClick(list[layoutPosition], layoutPosition)
             }
 
             ivPlay.setOnClickListener {
-
+                if(onListItemClickListener != null)
+                    onListItemClickListener?.onListItemPlay(list[layoutPosition], layoutPosition)
             }
 
             ivDelete.setOnClickListener {
-                val reminder = list[layoutPosition]
-                ReminderReceiver.deleteAlarm(context, reminder)
-                val reminderDb: ReminderDB? = ReminderDB.getInstance(context)
-                Thread(Runnable {
-                    reminderDb?.reminderDao()?.deleteReminder(reminder)
-                    ReminderReceiver.deleteAlarm(context, reminder)
-                }).start()
-                list.removeAt(layoutPosition)
-                notifyDataSetChanged()
+                if(onListItemClickListener != null)
+                    onListItemClickListener?.onListItemDelete(list[layoutPosition], layoutPosition)
             }
         }
     }
 
     interface OnListItemClickListener{
         fun onListItemClick(reminder: Reminder, position: Int)
+        fun onListItemDelete(reminder: Reminder, position: Int)
+        fun onListItemPlay(reminder: Reminder, position: Int)
     }
 }

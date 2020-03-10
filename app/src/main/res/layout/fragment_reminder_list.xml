@@ -7,6 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.ReminderListFragment" >
 
+    <LinearLayout
+        android:id="@+id/llNoItems"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_sad_emoji" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_items_found"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvList"
         android:layout_width="0dp"

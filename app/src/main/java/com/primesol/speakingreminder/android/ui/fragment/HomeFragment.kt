@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
@@ -62,11 +63,13 @@ class HomeFragment : Fragment() {
             if(event.action == MotionEvent.ACTION_DOWN){
                 startRecording()
                 startRipple()
+                bounceInButton(true)
                 tvRecord.text = getString(R.string.recording)
             }
             else if(event.action == MotionEvent.ACTION_UP){
                 stopRecording()
                 stopRipple()
+                bounceInButton(false)
                 tvRecord.text = getString(R.string.press_hold_to_record)
             }
 
@@ -90,9 +93,11 @@ class HomeFragment : Fragment() {
 
     private fun stopRecording(){
         Log.d(TAG, "stopRecording")
-        mediaRecorder?.stop()
-        mediaRecorder?.release()
-        showTimePickerDialog()
+        try {
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            showTimePickerDialog()
+        }catch (e: Exception){e.printStackTrace()}
     }
 
     private fun startRipple(){
@@ -102,6 +107,20 @@ class HomeFragment : Fragment() {
     private fun stopRipple(){
         rippleEffect.stopRippleAnimation()
     }
+
+    private fun bounceInButton(isBounceIn: Boolean){
+        if(isBounceIn){
+            val animation = AnimationUtils.loadAnimation(context, R.anim.bounce_in)
+            animation.fillAfter = true
+            ivRecord.startAnimation(animation)
+        }
+        else{
+            val animation = AnimationUtils.loadAnimation(context, R.anim.bounce_out)
+            animation.fillAfter = true
+            ivRecord.startAnimation(animation)
+        }
+    }
+
 
     private fun initRecorder(){
         val fileParent = activity?.getExternalFilesDir(null)?.absolutePath
