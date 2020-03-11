@@ -133,18 +133,13 @@ class ReminderReceiver: BroadcastReceiver() {
 
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         }
-        fun deleteAlarm(context: Context, reminder: Reminder){
+        fun removeRegisteredAlarm(context: Context, reminder: Reminder){
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminder.id)
             val pendingIntent = PendingIntent.getBroadcast(context, reminder.id!!, intent, PendingIntent.FLAG_CANCEL_CURRENT)
             alarmManager.cancel(pendingIntent)
-            //delete audio file
-            try {
-                val file = File(reminder.audio)
-                if(file.exists()) file.delete()
-            }catch (e: java.lang.Exception){e.printStackTrace()}
         }
     }
 

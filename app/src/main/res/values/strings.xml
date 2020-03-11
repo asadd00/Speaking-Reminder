@@ -16,4 +16,6 @@
     <string name="duplicate_reminder">Duplicate Reminder Time</string>
     <string name="untitled">Untitled</string>
     <string name="no_items_found">No reminders</string>
+    <string name="date">Date</string>
+    <string name="audio">Audio</string>
 </resources>
