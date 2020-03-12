@@ -1,5 +1,6 @@
 package com.primesol.speakingreminder.android.ui.fragment
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,12 +12,15 @@ import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import kotlinx.android.synthetic.main.fragment_reminder_details.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ReminderDetailsFragment : Fragment() {
+    private val TAG = "ttt ${this::class.java.simpleName}"
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,6 +35,7 @@ class ReminderDetailsFragment : Fragment() {
     }
 
     private fun init(){
+        initMediaPlayer()
         if(arguments != null){
             val reminder = arguments?.getSerializable(Reminder.REMINDER) as Reminder
             tvTitle.text = reminder.title
@@ -63,6 +68,16 @@ class ReminderDetailsFragment : Fragment() {
             swStatus.setOnCheckedChangeListener { _, isChecked ->
                 toggleReminderStatus(reminder, isChecked)
             }
+            ivPlay.setOnClickListener {
+                if (mediaPlayer!!.isPlaying) {
+                    stopAudio()
+                    ivPlay.setImageResource(R.drawable.ic_play)
+                }
+                else{
+                    startAudio(reminder.audio)
+                    ivPlay.setImageResource(R.drawable.ic_pause)
+                }
+            }
         }
     }
 
@@ -88,5 +103,34 @@ class ReminderDetailsFragment : Fragment() {
             reminderDB.reminderDao()?.updateReminder(reminder)
         }).start()
         tvStatus.text = reminder.status.replace('_', ' ')
+    }
+
+    //////// player work /////////
+
+    private fun startAudio(uri: String){
+        try {
+            mediaPlayer?.reset()
+            mediaPlayer?.setDataSource(uri)
+            mediaPlayer?.prepare()
+            mediaPlayer?.start()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun stopAudio(){
+        try {
+            mediaPlayer?.stop()
+            //mediaPlayer?.release()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun initMediaPlayer(){
+        mediaPlayer = MediaPlayerTon.getInstance()
+        mediaPlayer?.isLooping = false
+        mediaPlayer?.setOnPreparedListener {}
+        mediaPlayer?.setOnCompletionListener {
+            ivPlay.setImageResource(R.drawable.ic_play)
+        }
     }
 }

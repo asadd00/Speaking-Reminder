@@ -3,6 +3,7 @@ package com.primesol.speakingreminder.android.ui.fragment
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -16,6 +17,7 @@ import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import kotlinx.android.synthetic.main.fragment_add_reminder_details.*
 import java.io.File
 import java.text.SimpleDateFormat
@@ -23,6 +25,7 @@ import java.util.*
 
 class AddReminderDetailsFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
+    private var mediaPlayer: MediaPlayer? = null
     private lateinit var dateFormat: SimpleDateFormat
     private var outputFilePath: String? = null
     private var pickedHour: String? = null
@@ -45,11 +48,13 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun init(){
+        initMediaPlayer()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 
         if(arguments != null){
             outputFilePath = arguments?.getString("audio")
+            tvAudio.text = outputFilePath!!.substring(outputFilePath!!.lastIndexOf('/')+1)
 
             tvSave.setOnClickListener {
                 if(pickedDay == null || pickedMonth == null || pickedYear == null
@@ -64,6 +69,16 @@ class AddReminderDetailsFragment : Fragment() {
             }
             tvTime.setOnClickListener {
                 showTimePickerDialog()
+            }
+            ivPlay.setOnClickListener {
+                if (mediaPlayer!!.isPlaying) {
+                    stopAudio()
+                    ivPlay.setImageResource(R.drawable.ic_play)
+                }
+                else{
+                    startAudio(outputFilePath!!)
+                    ivPlay.setImageResource(R.drawable.ic_pause)
+                }
             }
         }
     }
@@ -170,5 +185,35 @@ class AddReminderDetailsFragment : Fragment() {
             findNavController().popBackStack()
         }
         builder.create().show()
+    }
+
+
+    //////// player work /////////
+
+    private fun startAudio(uri: String){
+        try {
+            mediaPlayer?.reset()
+            mediaPlayer?.setDataSource(uri)
+            mediaPlayer?.prepare()
+            mediaPlayer?.start()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun stopAudio(){
+        try {
+            mediaPlayer?.stop()
+            //mediaPlayer?.release()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun initMediaPlayer(){
+        mediaPlayer = MediaPlayerTon.getInstance()
+        mediaPlayer?.isLooping = false
+        mediaPlayer?.setOnPreparedListener {}
+        mediaPlayer?.setOnCompletionListener {
+            ivPlay.setImageResource(R.drawable.ic_play)
+        }
     }
 }
