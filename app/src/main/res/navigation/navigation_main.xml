@@ -13,6 +13,9 @@
         <action
             android:id="@+id/actionToReminderListFragment"
             app:destination="@id/reminderListFragment" />
+        <action
+            android:id="@+id/actionToAddReminderDetailsFragment"
+            app:destination="@id/addReminderDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/reminderListFragment"
@@ -28,4 +31,12 @@
         android:name="com.primesol.speakingreminder.android.ui.fragment.ReminderDetailsFragment"
         android:label="fragment_reminder_details"
         tools:layout="@layout/fragment_reminder_details" />
+    <fragment
+        android:id="@+id/addReminderDetailsFragment"
+        android:name="com.primesol.speakingreminder.android.ui.fragment.AddReminderDetailsFragment"
+        android:label="AddReminderDetailsFragment" >
+        <argument
+            android:name="audio"
+            app:argType="string" />
+    </fragment>
 </navigation>

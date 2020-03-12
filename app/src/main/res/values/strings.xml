@@ -18,4 +18,10 @@
     <string name="no_items_found">No reminders</string>
     <string name="date">Date</string>
     <string name="audio">Audio</string>
+    <string name="save">Save</string>
+    <string name="enter_title_here">Enter title here</string>
+    <string name="error">Error!</string>
+    <string name="m_fields_error">Some fields left empty</string>
+    <string name="success">Success!</string>
+    <string name="m_reminder_saved">Reminder saved successfully</string>
 </resources>
