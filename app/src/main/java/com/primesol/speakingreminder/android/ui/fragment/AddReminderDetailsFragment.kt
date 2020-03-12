@@ -35,6 +35,14 @@ class AddReminderDetailsFragment : Fragment() {
     private var pickedYear: String? = null
     private var reminderDb: ReminderDB? = null
 
+    override fun onDetach() {
+        super.onDetach()
+        try {
+            MediaPlayerTon.getInstance()?.reset()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

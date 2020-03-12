@@ -1,6 +1,7 @@
 package com.primesol.speakingreminder.android.ui.adapter
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +10,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.model.Reminder
+import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 
 class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpater.ViewHolder>() {
     var list = ArrayList<Reminder>()
+    private var mediaPlayer: MediaPlayer? = null
     var onListItemClickListener: OnListItemClickListener? = null
+
+    init {
+        initMediaPlayer()
+    }
 
     fun setData(list: ArrayList<Reminder>){
         this.list = list
@@ -55,8 +62,7 @@ class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpate
             }
 
             ivPlay.setOnClickListener {
-                if(onListItemClickListener != null)
-                    onListItemClickListener?.onListItemPlay(list[layoutPosition], layoutPosition)
+                startAudio(list[layoutPosition].audio)
             }
 
             ivDelete.setOnClickListener {
@@ -69,6 +75,36 @@ class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpate
     interface OnListItemClickListener{
         fun onListItemClick(reminder: Reminder, position: Int)
         fun onListItemDelete(reminder: Reminder, position: Int)
-        fun onListItemPlay(reminder: Reminder, position: Int)
+    }
+
+    //////// player work /////////
+
+    private fun startAudio(uri: String){
+        try {
+            mediaPlayer?.reset()
+            mediaPlayer?.setDataSource(uri)
+            mediaPlayer?.prepare()
+            mediaPlayer?.start()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun stopAudio(){
+        try {
+            mediaPlayer?.stop()
+            //mediaPlayer?.release()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
+
+    private fun initMediaPlayer(){
+        try {
+            if(mediaPlayer != null) mediaPlayer?.reset()
+            mediaPlayer = MediaPlayerTon.getInstance()
+            mediaPlayer?.isLooping = false
+            mediaPlayer?.setOnPreparedListener {}
+            mediaPlayer?.setOnCompletionListener {}
+        }
+        catch (e: Exception){e.printStackTrace()}
     }
 }

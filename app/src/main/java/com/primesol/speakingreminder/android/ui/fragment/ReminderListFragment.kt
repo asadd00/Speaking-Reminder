@@ -1,5 +1,6 @@
 package com.primesol.speakingreminder.android.ui.fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,12 +14,21 @@ import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import com.primesol.speakingreminder.android.ui.adapter.ReminderAdpater
+import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import kotlinx.android.synthetic.main.fragment_reminder_list.*
 import java.io.File
 
 class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener {
     private val TAG = "ttt ${this::class.java.simpleName}"
     private var adapter: ReminderAdpater? = null
+
+    override fun onDetach() {
+        super.onDetach()
+        try {
+            MediaPlayerTon.getInstance()?.reset()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,6 +64,20 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
     }
 
     override fun onListItemDelete(reminder: Reminder, position: Int) {
+        showDeleteConfirmationDialog(reminder, position)
+    }
+
+    private fun showDeleteConfirmationDialog(reminder: Reminder, position: Int){
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.confirmation)
+        builder.setMessage(R.string.m_delete_confirm)
+        builder.setCancelable(false)
+        builder.setNegativeButton(android.R.string.no){ dialog,_ -> dialog.dismiss() }
+        builder.setPositiveButton(android.R.string.yes){ _,_ -> deleteReminder(reminder, position) }
+        builder.create().show()
+    }
+
+    private fun deleteReminder(reminder: Reminder, position: Int){
         val rem = adapter?.list?.get(position) as Reminder
         val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
         Thread(Runnable {
@@ -68,9 +92,5 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
         adapter?.list?.removeAt(position)
         adapter?.notifyDataSetChanged()
         llNoItems.visibility = if(adapter?.list?.size == 0) View.VISIBLE else View.GONE
-    }
-
-    override fun onListItemPlay(reminder: Reminder, position: Int) {
-        //implement play audio here
     }
 }

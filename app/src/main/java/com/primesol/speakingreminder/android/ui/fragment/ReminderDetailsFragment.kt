@@ -1,5 +1,6 @@
 package com.primesol.speakingreminder.android.ui.fragment
 
+import android.app.AlertDialog
 import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -21,6 +22,14 @@ import java.util.*
 class ReminderDetailsFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
     private var mediaPlayer: MediaPlayer? = null
+
+    override fun onDetach() {
+        super.onDetach()
+        try {
+            MediaPlayerTon.getInstance()?.reset()
+        }
+        catch (e: Exception){e.printStackTrace()}
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,17 +61,7 @@ class ReminderDetailsFragment : Fragment() {
             swStatus.isChecked = reminder.status == Reminder.Status.STATUS_ACTIVE.name
 
             bDelete.setOnClickListener {
-                val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
-                Thread(Runnable {
-                    reminderDb?.reminderDao()?.deleteReminder(reminder)
-                    ReminderReceiver.removeRegisteredAlarm(context!!, reminder)
-                    //delete audio file
-                    try {
-                        val file = File(reminder.audio)
-                        if(file.exists()) file.delete()
-                    }catch (e: java.lang.Exception){e.printStackTrace()}
-                    view?.findNavController()?.popBackStack()
-                }).start()
+                showDeleteConfirmationDialog(reminder)
             }
 
             swStatus.setOnCheckedChangeListener { _, isChecked ->
@@ -103,6 +102,30 @@ class ReminderDetailsFragment : Fragment() {
             reminderDB.reminderDao()?.updateReminder(reminder)
         }).start()
         tvStatus.text = reminder.status.replace('_', ' ')
+    }
+
+    private fun showDeleteConfirmationDialog(reminder: Reminder){
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.confirmation)
+        builder.setMessage(R.string.m_delete_confirm)
+        builder.setCancelable(false)
+        builder.setNegativeButton(android.R.string.no){ dialog,_ -> dialog.dismiss() }
+        builder.setPositiveButton(android.R.string.yes){ _,_ -> deleteReminder(reminder) }
+        builder.create().show()
+    }
+
+    private fun deleteReminder(reminder: Reminder){
+        val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
+        Thread(Runnable {
+            reminderDb?.reminderDao()?.deleteReminder(reminder)
+            ReminderReceiver.removeRegisteredAlarm(context!!, reminder)
+            //delete audio file
+            try {
+                val file = File(reminder.audio)
+                if(file.exists()) file.delete()
+            }catch (e: java.lang.Exception){e.printStackTrace()}
+            view?.findNavController()?.popBackStack()
+        }).start()
     }
 
     //////// player work /////////

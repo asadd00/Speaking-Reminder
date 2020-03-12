@@ -24,4 +24,6 @@
     <string name="m_fields_error">Some fields left empty</string>
     <string name="success">Success!</string>
     <string name="m_reminder_saved">Reminder saved successfully</string>
+    <string name="confirmation">Confirmation</string>
+    <string name="m_delete_confirm">Are you sure, you want to delete this reminder?</string>
 </resources>
