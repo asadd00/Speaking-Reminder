@@ -89,11 +89,25 @@ class AddReminderDetailsFragment : Fragment() {
                 }
             }
         }
+
+        setDataInViews()
+    }
+
+    private fun setDataInViews(){
+        val cal = Calendar.getInstance()
+        pickedDay = String.format("%02d",cal.get(Calendar.DAY_OF_MONTH))
+        pickedMonth = String.format("%02d",cal.get(Calendar.MONTH)+1)
+        pickedYear = String.format("%s",cal.get(Calendar.YEAR))
+        pickedHour = String.format("%02d",cal.get(Calendar.HOUR_OF_DAY))
+        pickedMinute = String.format("%02d",cal.get(Calendar.MINUTE))
+
+        tvDate.text = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
+        tvTime.text = String.format("%s:%s", pickedHour, pickedMinute)
     }
 
     private fun saveReminder(){
-        Log.d(TAG, "filePath: $outputFilePath")
-        Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
+        //Log.d(TAG, "filePath: $outputFilePath")
+        //Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
         val reminder = Reminder()
         reminder.title = if(TextUtils.isEmpty(etTitle.text.toString())) getString(R.string.untitled)
             else etTitle.text.toString()
@@ -156,6 +170,7 @@ class AddReminderDetailsFragment : Fragment() {
                 tvDate.text = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
             },
             cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
+        dialog.datePicker.minDate = cal.timeInMillis
         dialog.show()
     }
 

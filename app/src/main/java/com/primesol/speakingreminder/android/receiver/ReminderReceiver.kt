@@ -9,13 +9,14 @@ import android.app.job.JobScheduler
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
-import android.content.Context.*
+import android.content.Context.JOB_SCHEDULER_SERVICE
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.PersistableBundle
-import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
@@ -27,7 +28,6 @@ import com.primesol.speakingreminder.android.service.PopupReminderService
 import com.primesol.speakingreminder.android.ui.activity.PopupReminderActivity
 import com.primesol.speakingreminder.android.utils.Defaults
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
-import java.io.File
 import java.util.*
 
 
@@ -169,6 +169,12 @@ class ReminderReceiver: BroadcastReceiver() {
         mediaPlayer?.isLooping = true
         mediaPlayer?.setOnPreparedListener {}
         mediaPlayer?.setOnCompletionListener {}
+        mediaPlayer?.setAudioAttributes(
+            AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+        )
     }
 
     private fun startPlayerTimer(){
