@@ -26,6 +26,12 @@ class Reminder: Serializable {
         val REMINDER = "reminder"
         @Ignore
         val REMINDER_ID = "reminderId"
+        @Ignore
+        val INTERVAL_DAILY = 1
+        @Ignore
+        val INTERVAL_WEEKLY = 2
+        @Ignore
+        val INTERVAL_MONTHLY = 3
     }
 
     enum class Status{

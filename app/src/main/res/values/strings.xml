@@ -26,4 +26,5 @@
     <string name="m_reminder_saved">Reminder saved successfully</string>
     <string name="confirmation">Confirmation</string>
     <string name="m_delete_confirm">Are you sure, you want to delete this reminder?</string>
+    <string name="set_repeating">Set repeating</string>
 </resources>

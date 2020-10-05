@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import androidx.navigation.fragment.findNavController
 
 import com.primesol.speakingreminder.android.R
@@ -34,6 +35,7 @@ class AddReminderDetailsFragment : Fragment() {
     private var pickedMonth: String? = null
     private var pickedYear: String? = null
     private var reminderDb: ReminderDB? = null
+    private var isRepeating = false
 
     override fun onDetach() {
         super.onDetach()
@@ -90,6 +92,24 @@ class AddReminderDetailsFragment : Fragment() {
             }
         }
 
+        cbRepeat.setOnCheckedChangeListener { _, isChecked ->
+            isRepeating = isChecked
+            if(isChecked) {
+                tvDate.visibility = View.GONE
+                textView3.visibility = View.GONE
+                imageView3.visibility = View.GONE
+
+                radioGroup.visibility = View.VISIBLE
+            }
+            else{
+                tvDate.visibility = View.VISIBLE
+                textView3.visibility = View.VISIBLE
+                imageView3.visibility = View.VISIBLE
+
+                radioGroup.visibility = View.GONE
+            }
+        }
+
         setDataInViews()
     }
 
@@ -132,9 +152,21 @@ class AddReminderDetailsFragment : Fragment() {
             }
 
             val id: Long? = reminderDb?.reminderDao()?.insertReminder(reminder)
-            ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!)
+            if(isRepeating)
+                ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!, true, getInterval())
+            else
+                ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!)
             activity?.runOnUiThread { showReminderSavedDialog() }
         }).start()
+    }
+
+    private fun getInterval(): Int{
+        return when(radioGroup.checkedRadioButtonId){
+            R.id.rbDaily -> Reminder.INTERVAL_DAILY
+            R.id.rbWeekly -> Reminder.INTERVAL_WEEKLY
+            R.id.rbMonthly -> Reminder.INTERVAL_MONTHLY
+            else -> Reminder.INTERVAL_DAILY
+        }
     }
 
     private fun removeAudio(reminder: Reminder){
@@ -232,11 +264,16 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun initMediaPlayer(){
-        mediaPlayer = MediaPlayerTon.getInstance()
-        mediaPlayer?.isLooping = false
-        mediaPlayer?.setOnPreparedListener {}
-        mediaPlayer?.setOnCompletionListener {
-            ivPlay.setImageResource(R.drawable.ic_play)
+        try {
+            mediaPlayer = MediaPlayerTon.getInstance()
+            mediaPlayer?.isLooping = false
+            mediaPlayer?.setOnPreparedListener {}
+            mediaPlayer?.setOnCompletionListener {
+                ivPlay.setImageResource(R.drawable.ic_play)
+            }
+        }
+        catch (e:Exception){
+            e.printStackTrace()
         }
     }
 }

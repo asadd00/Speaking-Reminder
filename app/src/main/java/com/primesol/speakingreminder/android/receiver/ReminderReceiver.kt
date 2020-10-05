@@ -124,14 +124,17 @@ class ReminderReceiver: BroadcastReceiver() {
         val ACTION_REMINDER_TRIGGERED = "com.primesol.speakingreminder.android.ACTION_REMINDER_TRIGGERED"
         val ACTION_DISMISS_REMINDER = "com.primesol.speakingreminder.android.ACTION_DISMISS_REMINDER"
 
-        fun setAlarm(context: Context, calendar: Calendar, reminderId: Int){
+        fun setAlarm(context: Context, calendar: Calendar, reminderId: Int, isRepeating:Boolean = false, interval: Int = 0){
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminderId)
             val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
 
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+            if(isRepeating)
+                setRepeatingAlarm(context, alarmManager, reminderId, calendar, interval)
+            else
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         }
         fun removeRegisteredAlarm(context: Context, reminder: Reminder){
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -140,6 +143,36 @@ class ReminderReceiver: BroadcastReceiver() {
             intent.putExtra(Reminder.REMINDER_ID, reminder.id)
             val pendingIntent = PendingIntent.getBroadcast(context, reminder.id!!, intent, PendingIntent.FLAG_CANCEL_CURRENT)
             alarmManager.cancel(pendingIntent)
+        }
+
+        private fun setRepeatingAlarm(context: Context, alarmManager: AlarmManager,
+                                      reminderId: Int, calendar: Calendar, interval: Int){
+
+            val intent = Intent(context, ReminderReceiver::class.java)
+            intent.action = ACTION_REMINDER_TRIGGERED
+            intent.putExtra(Reminder.REMINDER_ID, reminderId)
+            val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+
+            //checking if time passed
+            if (calendar.before(Calendar.getInstance())) {
+                when(interval){
+                    Reminder.INTERVAL_DAILY -> calendar.add(Calendar.DATE, 1)
+                    Reminder.INTERVAL_WEEKLY -> calendar.add(Calendar.DATE, 7)
+                    Reminder.INTERVAL_MONTHLY -> calendar.add(Calendar.DATE, 30)
+                }
+
+            }
+
+            when(interval){
+                Reminder.INTERVAL_DAILY -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
+                Reminder.INTERVAL_WEEKLY -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis, AlarmManager.INTERVAL_DAY * 7, pendingIntent)
+                Reminder.INTERVAL_MONTHLY -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis, AlarmManager.INTERVAL_DAY * 30, pendingIntent)
+                else -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
+            }
         }
     }
 
