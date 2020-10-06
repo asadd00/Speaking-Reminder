@@ -1,26 +1,34 @@
 package com.primesol.speakingreminder.android.ui.fragment
 
 import android.Manifest
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.loader.content.CursorLoader
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.utils.Methods
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.random.Random
 
 class HomeFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
@@ -28,6 +36,7 @@ class HomeFragment : Fragment() {
 
     private var isRecording = false
     private val RC_PERMISSIONS = 1001
+    private val RC_GET_FILE = 1002
     private lateinit var dateFormat: SimpleDateFormat
     private var outputFilePath: String? = null
     private var reminderDb: ReminderDB? = null
@@ -68,6 +77,28 @@ class HomeFragment : Fragment() {
 
             isRecording = !isRecording
             return@setOnTouchListener true
+        }
+
+        ivSelectFile.setOnClickListener {
+            if(!hasPermissions()) return@setOnClickListener
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "audio/*"
+            startActivityForResult(intent, RC_GET_FILE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(resultCode == RESULT_OK && requestCode == RC_GET_FILE){
+            try {
+                val uri = data?.data
+
+                findNavController().navigate(R.id.actionToAddReminderDetailsFragment, bundleOf(
+                    Pair("audio", Methods.getGeneralFilePath(uri!!, context!!))
+                ))
+            }
+            catch (e:Exception){
+                e.printStackTrace()
+            }
         }
     }
 

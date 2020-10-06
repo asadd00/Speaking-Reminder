@@ -11,12 +11,12 @@
         android:id="@+id/rippleEffect"
         android:layout_width="320dp"
         android:layout_height="320dp"
-        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintBottom_toTopOf="@+id/ivReminderList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
         app:rb_color="@color/colorPrimaryDark"
         app:rb_duration="2000"
         app:rb_radius="32dp"
@@ -52,11 +52,10 @@
         android:id="@+id/ivReminderList"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_marginEnd="16dp"
         android:src="@drawable/circle_primary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/rippleEffect"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/rippleEffect"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/rippleEffect" />
 
     <ImageView
@@ -68,7 +67,28 @@
         app:layout_constraintEnd_toEndOf="@+id/ivReminderList"
         app:layout_constraintStart_toStartOf="@+id/ivReminderList"
         app:layout_constraintTop_toTopOf="@+id/ivReminderList" />
+    
+    <ImageView
+        android:id="@+id/ivSelectFile"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/circle_accent"
+        app:layout_constraintBottom_toBottomOf="@+id/ivReminderList"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/ivReminderList" />
 
+    <ImageView
+        android:id="@+id/imageView7"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="28dp"
+        android:src="@drawable/ic_document_dark"
+        app:layout_constraintBottom_toBottomOf="@+id/ivSelectFile"
+        app:layout_constraintEnd_toEndOf="@+id/ivSelectFile"
+        app:layout_constraintStart_toStartOf="@+id/ivSelectFile"
+        app:layout_constraintTop_toTopOf="@+id/ivSelectFile" />
+    
     <TextView
         android:id="@+id/tvRecord"
         android:layout_width="wrap_content"
@@ -81,5 +101,37 @@
         app:layout_constraintEnd_toEndOf="@+id/rippleEffect"
         app:layout_constraintStart_toStartOf="@+id/rippleEffect"
         app:layout_constraintTop_toTopOf="@+id/rippleEffect" />
+
+    <TextView
+        android:id="@+id/tvRecord2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/list"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/ivReminderList"
+        app:layout_constraintStart_toStartOf="@+id/ivReminderList"
+        app:layout_constraintTop_toBottomOf="@+id/ivReminderList" />
+
+    <TextView
+        android:id="@+id/tvRecord3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pick_file"
+        android:textColor="@color/colorPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/ivSelectFile"
+        app:layout_constraintStart_toStartOf="@+id/ivSelectFile"
+        app:layout_constraintTop_toTopOf="@+id/tvRecord2" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
