@@ -110,21 +110,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Daily" />
+            android:text="@string/daily" />
 
         <RadioButton
             android:id="@+id/rbWeekly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Weekly" />
+            android:text="@string/weekly" />
 
         <RadioButton
             android:id="@+id/rbMonthly"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Monthly" />
+            android:text="@string/monthly" />
+
+        <RadioButton
+            android:id="@+id/rbYearly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/yearly" />
 
     </RadioGroup>
 

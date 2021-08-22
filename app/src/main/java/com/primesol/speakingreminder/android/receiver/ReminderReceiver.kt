@@ -159,6 +159,7 @@ class ReminderReceiver: BroadcastReceiver() {
                     Reminder.INTERVAL_DAILY -> calendar.add(Calendar.DATE, 1)
                     Reminder.INTERVAL_WEEKLY -> calendar.add(Calendar.DATE, 7)
                     Reminder.INTERVAL_MONTHLY -> calendar.add(Calendar.DATE, 30)
+                    Reminder.INTERVAL_YEARLY -> calendar.add(Calendar.DATE, 365)
                 }
 
             }
@@ -170,6 +171,8 @@ class ReminderReceiver: BroadcastReceiver() {
                     calendar.timeInMillis, AlarmManager.INTERVAL_DAY * 7, pendingIntent)
                 Reminder.INTERVAL_MONTHLY -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis, AlarmManager.INTERVAL_DAY * 30, pendingIntent)
+                Reminder.INTERVAL_YEARLY -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis, AlarmManager.INTERVAL_DAY * 365, pendingIntent)
                 else -> alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
             }

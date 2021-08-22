@@ -165,6 +165,7 @@ class AddReminderDetailsFragment : Fragment() {
             R.id.rbDaily -> Reminder.INTERVAL_DAILY
             R.id.rbWeekly -> Reminder.INTERVAL_WEEKLY
             R.id.rbMonthly -> Reminder.INTERVAL_MONTHLY
+            R.id.rbYearly -> Reminder.INTERVAL_YEARLY
             else -> Reminder.INTERVAL_DAILY
         }
     }
