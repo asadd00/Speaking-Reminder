@@ -18,20 +18,22 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.loader.content.CursorLoader
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.databinding.FragmentHomeBinding
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import com.primesol.speakingreminder.android.utils.Methods
-import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
+    private lateinit var mBinding: FragmentHomeBinding
     private var mediaRecorder: MediaRecorder? = null
 
     private var isRecording = false
@@ -44,8 +46,9 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    ): View {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,29 +60,29 @@ class HomeFragment : Fragment() {
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 
-        ivReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
+        mBinding.ivReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
 
-        ivRecord.setOnTouchListener { _, event ->
+        mBinding.ivRecord.setOnTouchListener { _, event ->
             if(!hasPermissions()) return@setOnTouchListener true
 
             if(event.action == MotionEvent.ACTION_DOWN){
                 startRecording()
                 startRipple()
                 bounceInButton(true)
-                tvRecord.text = getString(R.string.recording)
+                mBinding.tvRecord.text = getString(R.string.recording)
             }
             else if(event.action == MotionEvent.ACTION_UP){
                 stopRecording()
                 stopRipple()
                 bounceInButton(false)
-                tvRecord.text = getString(R.string.press_hold_to_record)
+                mBinding.tvRecord.text = getString(R.string.press_hold_to_record)
             }
 
             isRecording = !isRecording
             return@setOnTouchListener true
         }
 
-        ivSelectFile.setOnClickListener {
+        mBinding.ivSelectFile.setOnClickListener {
             if(!hasPermissions()) return@setOnClickListener
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "audio/*"
@@ -127,23 +130,23 @@ class HomeFragment : Fragment() {
     }
 
     private fun startRipple(){
-        rippleEffect.startRippleAnimation()
+        mBinding.rippleEffect.startRippleAnimation()
     }
 
     private fun stopRipple(){
-        rippleEffect.stopRippleAnimation()
+        mBinding.rippleEffect.stopRippleAnimation()
     }
 
     private fun bounceInButton(isBounceIn: Boolean){
         if(isBounceIn){
             val animation = AnimationUtils.loadAnimation(context, R.anim.bounce_in)
             animation.fillAfter = true
-            ivRecord.startAnimation(animation)
+            mBinding.ivRecord.startAnimation(animation)
         }
         else{
             val animation = AnimationUtils.loadAnimation(context, R.anim.bounce_out)
             animation.fillAfter = true
-            ivRecord.startAnimation(animation)
+            mBinding.ivRecord.startAnimation(animation)
         }
     }
 
@@ -151,10 +154,13 @@ class HomeFragment : Fragment() {
         val fileParent = activity?.getExternalFilesDir(null)?.absolutePath
         outputFilePath = "$fileParent/sr-${dateFormat.format(Date())}-${(0..999).random()}.mp3"
 
-        mediaRecorder= MediaRecorder()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            mediaRecorder= MediaRecorder(requireContext())
+        else mediaRecorder = MediaRecorder()
+
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-        mediaRecorder?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB)
+        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
         mediaRecorder?.setOutputFile(outputFilePath)
 
     }

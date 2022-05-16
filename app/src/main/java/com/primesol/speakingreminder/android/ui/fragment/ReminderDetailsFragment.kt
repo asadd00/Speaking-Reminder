@@ -7,20 +7,22 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 
 import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.databinding.FragmentReminderDetailsBinding
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
-import kotlinx.android.synthetic.main.fragment_reminder_details.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ReminderDetailsFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
+    private lateinit var mBinding: FragmentReminderDetailsBinding
     private var mediaPlayer: MediaPlayer? = null
 
     override fun onDetach() {
@@ -34,8 +36,9 @@ class ReminderDetailsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_reminder_details, container, false)
+    ): View {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_reminder_details, container, false)
+        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,34 +50,37 @@ class ReminderDetailsFragment : Fragment() {
         initMediaPlayer()
         if(arguments != null){
             val reminder = arguments?.getSerializable(Reminder.REMINDER) as Reminder
-            tvTitle.text = reminder.title
-            tvDate.text = reminder.dateTime.substring(0, reminder.dateTime.indexOf('_'))
-            tvTime.text = (reminder.dateTime.substring(reminder.dateTime.indexOf('_')+1)).replace('-', ':')
-            tvAudio.text = reminder.audio.substring(reminder.audio.lastIndexOf('/')+1)
-            tvStatus.text = reminder.status.replace('_', ' ')
-            when(reminder.status){
-                Reminder.Status.STATUS_ACTIVE.name->ivStatus.setImageResource(R.drawable.circle_green)
-                Reminder.Status.STATUS_INACTIVE.name->ivStatus.setImageResource(R.drawable.circle_red)
-                Reminder.Status.STATUS_PASSED.name->ivStatus.setImageResource(R.drawable.circle_orange)
-            }
-            if(reminder.status == Reminder.Status.STATUS_PASSED.name) swStatus.visibility = View.INVISIBLE
-            swStatus.isChecked = reminder.status == Reminder.Status.STATUS_ACTIVE.name
 
-            bDelete.setOnClickListener {
-                showDeleteConfirmationDialog(reminder)
-            }
-
-            swStatus.setOnCheckedChangeListener { _, isChecked ->
-                toggleReminderStatus(reminder, isChecked)
-            }
-            ivPlay.setOnClickListener {
-                if (mediaPlayer!!.isPlaying) {
-                    stopAudio()
-                    ivPlay.setImageResource(R.drawable.ic_play)
+            mBinding.apply {
+                tvTitle.text = reminder.title
+                tvDate.text = reminder.dateTime.substring(0, reminder.dateTime.indexOf('_'))
+                tvTime.text = (reminder.dateTime.substring(reminder.dateTime.indexOf('_')+1)).replace('-', ':')
+                tvAudio.text = reminder.audio.substring(reminder.audio.lastIndexOf('/')+1)
+                tvStatus.text = reminder.status.replace('_', ' ')
+                when(reminder.status){
+                    Reminder.Status.STATUS_ACTIVE.name->ivStatus.setImageResource(R.drawable.circle_green)
+                    Reminder.Status.STATUS_INACTIVE.name->ivStatus.setImageResource(R.drawable.circle_red)
+                    Reminder.Status.STATUS_PASSED.name->ivStatus.setImageResource(R.drawable.circle_orange)
                 }
-                else{
-                    startAudio(reminder.audio)
-                    ivPlay.setImageResource(R.drawable.ic_pause)
+                if(reminder.status == Reminder.Status.STATUS_PASSED.name) swStatus.visibility = View.INVISIBLE
+                swStatus.isChecked = reminder.status == Reminder.Status.STATUS_ACTIVE.name
+
+                bDelete.setOnClickListener {
+                    showDeleteConfirmationDialog(reminder)
+                }
+
+                swStatus.setOnCheckedChangeListener { _, isChecked ->
+                    toggleReminderStatus(reminder, isChecked)
+                }
+                ivPlay.setOnClickListener {
+                    if (mediaPlayer!!.isPlaying) {
+                        stopAudio()
+                        ivPlay.setImageResource(R.drawable.ic_play)
+                    }
+                    else{
+                        startAudio(reminder.audio)
+                        ivPlay.setImageResource(R.drawable.ic_pause)
+                    }
                 }
             }
         }
@@ -90,18 +96,18 @@ class ReminderDetailsFragment : Fragment() {
             calendar.set(Calendar.SECOND, 0)
             reminder.status = Reminder.Status.STATUS_ACTIVE.name
             ReminderReceiver.setAlarm(context!!, calendar, reminder.id!!)
-            ivStatus.setImageResource(R.drawable.circle_green)
+            mBinding.ivStatus.setImageResource(R.drawable.circle_green)
         }
         else{
             reminder.status = Reminder.Status.STATUS_INACTIVE.name
             ReminderReceiver.removeRegisteredAlarm(context!!, reminder)
-            ivStatus.setImageResource(R.drawable.circle_red)
+            mBinding.ivStatus.setImageResource(R.drawable.circle_red)
         }
 
         Thread(Runnable {
             reminderDB.reminderDao()?.updateReminder(reminder)
         }).start()
-        tvStatus.text = reminder.status.replace('_', ' ')
+        mBinding.tvStatus.text = reminder.status.replace('_', ' ')
     }
 
     private fun showDeleteConfirmationDialog(reminder: Reminder){
@@ -153,7 +159,7 @@ class ReminderDetailsFragment : Fragment() {
         mediaPlayer?.isLooping = false
         mediaPlayer?.setOnPreparedListener {}
         mediaPlayer?.setOnCompletionListener {
-            ivPlay.setImageResource(R.drawable.ic_play)
+            mBinding.ivPlay.setImageResource(R.drawable.ic_play)
         }
     }
 }

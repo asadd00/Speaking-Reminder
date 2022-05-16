@@ -3,16 +3,18 @@ package com.primesol.speakingreminder.android.ui.activity
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.databinding.ActivityPopupReminderBinding
 import com.primesol.speakingreminder.android.model.Reminder
-import kotlinx.android.synthetic.main.activity_popup_reminder.*
 
 
 class PopupReminderActivity : AppCompatActivity() {
+    private lateinit var mBinding: ActivityPopupReminderBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_popup_reminder)
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_popup_reminder)
         init()
     }
 
@@ -26,10 +28,10 @@ class PopupReminderActivity : AppCompatActivity() {
 
         if(intent != null && intent.hasExtra(Reminder.REMINDER)){
             val reminder: Reminder = intent.getSerializableExtra(Reminder.REMINDER) as Reminder
-            tvTitle.text = reminder.title
+            mBinding.tvTitle.text = reminder.title
         }
 
-        bDismiss.setOnClickListener {
+        mBinding.bDismiss.setOnClickListener {
             finish()
         }
     }

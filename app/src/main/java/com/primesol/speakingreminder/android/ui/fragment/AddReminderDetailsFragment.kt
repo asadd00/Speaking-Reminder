@@ -12,20 +12,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 
 import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.databinding.FragmentAddReminderDetailsBinding
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
-import kotlinx.android.synthetic.main.fragment_add_reminder_details.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AddReminderDetailsFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
+    private lateinit var mBinding: FragmentAddReminderDetailsBinding
     private var mediaPlayer: MediaPlayer? = null
     private lateinit var dateFormat: SimpleDateFormat
     private var outputFilePath: String? = null
@@ -48,8 +50,9 @@ class AddReminderDetailsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_add_reminder_details, container, false)
+    ): View {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_reminder_details, container, false)
+        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,55 +65,57 @@ class AddReminderDetailsFragment : Fragment() {
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 
-        if(arguments != null){
-            outputFilePath = arguments?.getString("audio")
-            tvAudio.text = outputFilePath!!.substring(outputFilePath!!.lastIndexOf('/')+1)
+        if(arguments != null) {
+            mBinding.apply {
 
-            tvSave.setOnClickListener {
-                if(pickedDay == null || pickedMonth == null || pickedYear == null
-                    || pickedHour == null || pickedMinute == null || outputFilePath == null){
-                    showEmptyFieldsDialog()
-                    return@setOnClickListener
+                outputFilePath = arguments?.getString("audio")
+                tvAudio.text = outputFilePath!!.substring(outputFilePath!!.lastIndexOf('/') + 1)
+
+                tvSave.setOnClickListener {
+                    if (pickedDay == null || pickedMonth == null || pickedYear == null
+                        || pickedHour == null || pickedMinute == null || outputFilePath == null
+                    ) {
+                        showEmptyFieldsDialog()
+                        return@setOnClickListener
+                    }
+                    saveReminder()
                 }
-                saveReminder()
-            }
-            tvDate.setOnClickListener {
-                showDatePickerDialog()
-            }
-            tvTime.setOnClickListener {
-                showTimePickerDialog()
-            }
-            ivPlay.setOnClickListener {
-                if (mediaPlayer?.isPlaying == true) {
-                    stopAudio()
-                    ivPlay.setImageResource(R.drawable.ic_play)
+                tvDate.setOnClickListener {
+                    showDatePickerDialog()
                 }
-                else{
-                    startAudio(outputFilePath ?: "")
-                    ivPlay.setImageResource(R.drawable.ic_pause)
+                tvTime.setOnClickListener {
+                    showTimePickerDialog()
                 }
+                ivPlay.setOnClickListener {
+                    if (mediaPlayer?.isPlaying == true) {
+                        stopAudio()
+                        ivPlay.setImageResource(R.drawable.ic_play)
+                    } else {
+                        startAudio(outputFilePath ?: "")
+                        ivPlay.setImageResource(R.drawable.ic_pause)
+                    }
+                }
+
+                cbRepeat.setOnCheckedChangeListener { _, isChecked ->
+                    isRepeating = isChecked
+                    if (isChecked) {
+                        tvDate.visibility = View.GONE
+                        textView3.visibility = View.GONE
+                        imageView3.visibility = View.GONE
+
+                        radioGroup.visibility = View.VISIBLE
+                    } else {
+                        tvDate.visibility = View.VISIBLE
+                        textView3.visibility = View.VISIBLE
+                        imageView3.visibility = View.VISIBLE
+
+                        radioGroup.visibility = View.GONE
+                    }
+                }
+
+                setDataInViews()
             }
         }
-
-        cbRepeat.setOnCheckedChangeListener { _, isChecked ->
-            isRepeating = isChecked
-            if(isChecked) {
-                tvDate.visibility = View.GONE
-                textView3.visibility = View.GONE
-                imageView3.visibility = View.GONE
-
-                radioGroup.visibility = View.VISIBLE
-            }
-            else{
-                tvDate.visibility = View.VISIBLE
-                textView3.visibility = View.VISIBLE
-                imageView3.visibility = View.VISIBLE
-
-                radioGroup.visibility = View.GONE
-            }
-        }
-
-        setDataInViews()
     }
 
     private fun setDataInViews(){
@@ -121,16 +126,16 @@ class AddReminderDetailsFragment : Fragment() {
         pickedHour = String.format("%02d",cal.get(Calendar.HOUR_OF_DAY))
         pickedMinute = String.format("%02d",cal.get(Calendar.MINUTE))
 
-        tvDate.text = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
-        tvTime.text = String.format("%s:%s", pickedHour, pickedMinute)
+        mBinding.tvDate.text = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
+        mBinding.tvTime.text = String.format("%s:%s", pickedHour, pickedMinute)
     }
 
     private fun saveReminder(){
         //Log.d(TAG, "filePath: $outputFilePath")
         //Log.d(TAG, "dateTime: $pickedYear-$pickedMonth-$pickedDay -- $pickedHour:$pickedMinute")
         val reminder = Reminder()
-        reminder.title = if(TextUtils.isEmpty(etTitle.text.toString())) getString(R.string.untitled)
-            else etTitle.text.toString()
+        reminder.title = if(TextUtils.isEmpty(mBinding.etTitle.text.toString())) getString(R.string.untitled)
+            else mBinding.etTitle.text.toString()
         reminder.audio = outputFilePath!!
         reminder.createdAt = dateFormat.format(Date())
         reminder.status = Reminder.Status.STATUS_ACTIVE.name
@@ -161,7 +166,7 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun getInterval(): Int{
-        return when(radioGroup.checkedRadioButtonId){
+        return when(mBinding.radioGroup.checkedRadioButtonId){
             R.id.rbDaily -> Reminder.INTERVAL_DAILY
             R.id.rbWeekly -> Reminder.INTERVAL_WEEKLY
             R.id.rbMonthly -> Reminder.INTERVAL_MONTHLY
@@ -184,7 +189,7 @@ class AddReminderDetailsFragment : Fragment() {
                 pickedHour = hourOfDay.toString(); pickedMinute = minute.toString()
                 if(pickedHour?.length == 1) pickedHour = "0${pickedHour}"
                 if(pickedMinute?.length == 1) pickedMinute = "0${pickedMinute}"
-                tvTime.text = String.format("%s:%s", pickedHour, pickedMinute)
+                mBinding.tvTime.text = String.format("%s:%s", pickedHour, pickedMinute)
             },
             cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true)
         dialog.show()
@@ -200,7 +205,7 @@ class AddReminderDetailsFragment : Fragment() {
 
                 if(pickedMonth?.length == 1) pickedMonth = "0${pickedMonth}"
                 if(pickedDay?.length == 1) pickedDay = "0${pickedDay}"
-                tvDate.text = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
+                mBinding.tvDate.text = String.format("%s-%s-%s", pickedYear, pickedMonth, pickedDay)
             },
             cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH))
         dialog.datePicker.minDate = cal.timeInMillis
@@ -270,7 +275,7 @@ class AddReminderDetailsFragment : Fragment() {
             mediaPlayer?.isLooping = false
             mediaPlayer?.setOnPreparedListener {}
             mediaPlayer?.setOnCompletionListener {
-                ivPlay.setImageResource(R.drawable.ic_play)
+                mBinding.ivPlay.setImageResource(R.drawable.ic_play)
             }
         }
         catch (e:Exception){

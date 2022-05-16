@@ -7,8 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.databinding.ItemReminderBinding
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 
@@ -27,7 +29,7 @@ class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpate
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_reminder, parent, false)
+        val view = ItemReminderBinding.inflate(LayoutInflater.from(parent.context))
         return ViewHolder(view)
     }
 
@@ -37,35 +39,28 @@ class ReminderAdpater(val context: Context): RecyclerView.Adapter<ReminderAdpate
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val reminder = list[position]
-        holder.tvTitle.text = reminder.title
-        holder.tvDate.text = reminder.dateTime.substring(0, reminder.dateTime.indexOf('_'))
-        holder.tvTime.text = (reminder.dateTime.substring(reminder.dateTime.indexOf('_')+1)).replace('-', ':')
+        holder.view.tvTitle.text = reminder.title
+        holder.view.tvDate.text = reminder.dateTime.substring(0, reminder.dateTime.indexOf('_'))
+        holder.view.tvTime.text = (reminder.dateTime.substring(reminder.dateTime.indexOf('_')+1)).replace('-', ':')
         when(reminder.status){
-            Reminder.Status.STATUS_ACTIVE.name->holder.tvStatus.setBackgroundColor(context.resources.getColor(R.color.green))
-            Reminder.Status.STATUS_INACTIVE.name->holder.tvStatus.setBackgroundColor(context.resources.getColor(R.color.red))
-            Reminder.Status.STATUS_PASSED.name->holder.tvStatus.setBackgroundColor(context.resources.getColor(R.color.orange_light))
+            Reminder.Status.STATUS_ACTIVE.name->holder.view.tvStatus.setBackgroundColor(context.resources.getColor(R.color.green))
+            Reminder.Status.STATUS_INACTIVE.name->holder.view.tvStatus.setBackgroundColor(context.resources.getColor(R.color.red))
+            Reminder.Status.STATUS_PASSED.name->holder.view.tvStatus.setBackgroundColor(context.resources.getColor(R.color.orange_light))
         }
     }
 
-    inner class ViewHolder(view: View): RecyclerView.ViewHolder(view){
-        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
-        val tvDate: TextView = view.findViewById(R.id.tvDate)
-        val tvTime: TextView = view.findViewById(R.id.tvTime)
-        val tvStatus: TextView = view.findViewById(R.id.tvStatus)
-        val ivPlay: ImageView = view.findViewById(R.id.ivPlay)
-        val ivDelete: ImageView = view.findViewById(R.id.ivDelete)
-
+    inner class ViewHolder(val view: ItemReminderBinding): RecyclerView.ViewHolder(view.root){
         init {
-            view.setOnClickListener {
+            view.root.setOnClickListener {
                 if(onListItemClickListener != null)
                     onListItemClickListener?.onListItemClick(list[layoutPosition], layoutPosition)
             }
 
-            ivPlay.setOnClickListener {
+            view.ivPlay.setOnClickListener {
                 startAudio(list[layoutPosition].audio)
             }
 
-            ivDelete.setOnClickListener {
+            view.ivDelete.setOnClickListener {
                 if(onListItemClickListener != null)
                     onListItemClickListener?.onListItemDelete(list[layoutPosition], layoutPosition)
             }

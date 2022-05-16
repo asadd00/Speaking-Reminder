@@ -7,19 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 
 import com.primesol.speakingreminder.android.R
+import com.primesol.speakingreminder.android.databinding.FragmentReminderListBinding
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
 import com.primesol.speakingreminder.android.ui.adapter.ReminderAdpater
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
-import kotlinx.android.synthetic.main.fragment_reminder_list.*
 import java.io.File
 
 class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener {
     private val TAG = "ttt ${this::class.java.simpleName}"
+    private lateinit var mBinding: FragmentReminderListBinding
     private var adapter: ReminderAdpater? = null
 
     override fun onDetach() {
@@ -33,15 +35,16 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_reminder_list, container, false)
+    ): View {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_reminder_list, container, false)
+        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         adapter = ReminderAdpater(context!!)
         adapter?.onListItemClickListener = this
-        rvList.adapter = adapter
+        mBinding.rvList.adapter = adapter
         fetchDataAndSetList()
     }
 
@@ -53,7 +56,7 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
 //                Log.d(TAG, "Rem: ${rem.id} | ${rem.title} | ${rem.audio} | ${rem.createdAt} | ${rem.date} | ${rem.time}")
 //            }
             activity?.runOnUiThread{
-                llNoItems.visibility = if(list.size == 0) View.VISIBLE else View.GONE
+                mBinding.llNoItems.visibility = if(list.size == 0) View.VISIBLE else View.GONE
                 adapter?.setData(list)
             }
         }).start()
@@ -79,10 +82,10 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
 
     private fun deleteReminder(reminder: Reminder, position: Int){
         val rem = adapter?.list?.get(position) as Reminder
-        val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
+        val reminderDb: ReminderDB = ReminderDB.getInstance(requireContext())
         Thread(Runnable {
             reminderDb?.reminderDao()?.deleteReminder(rem)
-            ReminderReceiver.removeRegisteredAlarm(context!!, rem)
+            ReminderReceiver.removeRegisteredAlarm(requireContext(), rem)
             //delete audio file
             try {
                 val file = File(reminder.audio)
@@ -91,6 +94,6 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
         }).start()
         adapter?.list?.removeAt(position)
         adapter?.notifyDataSetChanged()
-        llNoItems.visibility = if(adapter?.list?.size == 0) View.VISIBLE else View.GONE
+        mBinding.llNoItems.visibility = if(adapter?.list?.size == 0) View.VISIBLE else View.GONE
     }
 }
