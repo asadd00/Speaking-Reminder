@@ -18,7 +18,13 @@
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.activity.SplashActivity" android:theme="@style/NoBarAppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1619147317570175~8305567648"/>
+
+        <activity android:name=".ui.activity.SplashActivity" android:theme="@style/NoBarAppTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,7 +35,8 @@
         <activity android:name=".ui.activity.MainActivity" />
 
         <receiver android:name=".receiver.ReminderReceiver" />
-        <receiver android:name=".receiver.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

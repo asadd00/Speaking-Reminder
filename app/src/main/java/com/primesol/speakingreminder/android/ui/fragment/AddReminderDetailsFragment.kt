@@ -81,12 +81,12 @@ class AddReminderDetailsFragment : Fragment() {
                 showTimePickerDialog()
             }
             ivPlay.setOnClickListener {
-                if (mediaPlayer!!.isPlaying) {
+                if (mediaPlayer?.isPlaying == true) {
                     stopAudio()
                     ivPlay.setImageResource(R.drawable.ic_play)
                 }
                 else{
-                    startAudio(outputFilePath!!)
+                    startAudio(outputFilePath ?: "")
                     ivPlay.setImageResource(R.drawable.ic_pause)
                 }
             }
