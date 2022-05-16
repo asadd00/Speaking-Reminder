@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.ads.AdRequest
 
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentAddReminderDetailsBinding
@@ -24,6 +25,10 @@ import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.google.android.gms.ads.InterstitialAd
+
+
+
 
 class AddReminderDetailsFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
@@ -61,6 +66,7 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun init(){
+        initAd()
         initMediaPlayer()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
@@ -158,9 +164,9 @@ class AddReminderDetailsFragment : Fragment() {
 
             val id: Long? = reminderDb?.reminderDao()?.insertReminder(reminder)
             if(isRepeating)
-                ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!, true, getInterval())
+                ReminderReceiver.setAlarm(requireContext(), cal, id?.toInt()!!, true, getInterval())
             else
-                ReminderReceiver.setAlarm(context!!, cal, id?.toInt()!!)
+                ReminderReceiver.setAlarm(requireContext(), cal, id?.toInt()!!)
             activity?.runOnUiThread { showReminderSavedDialog() }
         }).start()
     }
@@ -237,6 +243,9 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun showReminderSavedDialog(){
+        if(mInterstitialAd.isLoaded)
+            mInterstitialAd.show()
+
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.success)
         builder.setMessage(R.string.m_reminder_saved)
@@ -282,4 +291,18 @@ class AddReminderDetailsFragment : Fragment() {
             e.printStackTrace()
         }
     }
+
+    private lateinit var mInterstitialAd: InterstitialAd
+    private lateinit var adRequest: AdRequest
+
+    private fun initAd(){
+        adRequest = AdRequest.Builder().build()
+        mInterstitialAd = InterstitialAd(requireContext())
+        mInterstitialAd.apply {
+            adUnitId = getString(R.string.ad_process_completed_interstitial)
+            loadAd(adRequest)
+        }
+    }
+
+
 }

@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.loader.content.CursorLoader
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.ads.AdRequest
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentHomeBinding
 import com.primesol.speakingreminder.android.repository.ReminderDB
@@ -57,6 +58,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
+        val adRequest: AdRequest = AdRequest.Builder().build()
+        mBinding.adView.loadAd(adRequest)
+
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(context!!)
 
