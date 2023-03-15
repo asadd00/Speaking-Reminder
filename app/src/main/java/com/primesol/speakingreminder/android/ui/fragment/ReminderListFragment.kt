@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
+import com.google.android.gms.ads.AdRequest
 
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentReminderListBinding
@@ -42,14 +43,18 @@ class ReminderListFragment : Fragment(), ReminderAdpater.OnListItemClickListener
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adapter = ReminderAdpater(context!!)
+
+        val adRequest: AdRequest = AdRequest.Builder().build()
+        mBinding.adView.loadAd(adRequest)
+
+        adapter = ReminderAdpater(requireContext())
         adapter?.onListItemClickListener = this
         mBinding.rvList.adapter = adapter
         fetchDataAndSetList()
     }
 
     private fun fetchDataAndSetList(){
-        val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
+        val reminderDb: ReminderDB? = ReminderDB.getInstance(requireContext())
         Thread(Runnable {
             val list = reminderDb?.reminderDao()?.getReminderList() as ArrayList<Reminder>
 //            for(rem in list){

@@ -80,9 +80,9 @@ class ReminderReceiver: BroadcastReceiver() {
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_DISMISS_REMINDER
             intent.putExtra(Defaults.DISMISS, true)
-            val pIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+            val pIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
             val action = NotificationCompat.Action.Builder(0, context.getString(R.string.dismiss), pIntent).build()
-            builder.addAction(action!!)
+            builder.addAction(action)
         }
 
         val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -129,7 +129,7 @@ class ReminderReceiver: BroadcastReceiver() {
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminderId)
-            val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_IMMUTABLE)
 
             if(isRepeating)
                 setRepeatingAlarm(context, alarmManager, reminderId, calendar, interval)
@@ -141,7 +141,7 @@ class ReminderReceiver: BroadcastReceiver() {
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminder.id)
-            val pendingIntent = PendingIntent.getBroadcast(context, reminder.id!!, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pendingIntent = PendingIntent.getBroadcast(context, reminder.id!!, intent, PendingIntent.FLAG_IMMUTABLE)
             alarmManager.cancel(pendingIntent)
         }
 
@@ -151,7 +151,7 @@ class ReminderReceiver: BroadcastReceiver() {
             val intent = Intent(context, ReminderReceiver::class.java)
             intent.action = ACTION_REMINDER_TRIGGERED
             intent.putExtra(Reminder.REMINDER_ID, reminderId)
-            val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            val pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_IMMUTABLE)
 
             //checking if time passed
             if (calendar.before(Calendar.getInstance())) {

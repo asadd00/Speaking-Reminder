@@ -62,7 +62,7 @@ class HomeFragment : Fragment() {
         mBinding.adView.loadAd(adRequest)
 
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
-        reminderDb = ReminderDB.getInstance(context!!)
+        reminderDb = ReminderDB.getInstance(requireContext())
 
         mBinding.ivReminderList.setOnClickListener(Navigation.createNavigateOnClickListener(R.id.actionToReminderListFragment))
 
@@ -100,7 +100,7 @@ class HomeFragment : Fragment() {
                 val uri = data?.data
 
                 findNavController().navigate(R.id.actionToAddReminderDetailsFragment, bundleOf(
-                    Pair("audio", Methods.getGeneralFilePath(uri!!, context!!))
+                    Pair("audio", Methods.getGeneralFilePath(uri!!, requireContext()))
                 ))
             }
             catch (e:Exception){
@@ -173,11 +173,11 @@ class HomeFragment : Fragment() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true
         }
-        else if (ContextCompat.checkSelfPermission(context!!, Manifest.permission.RECORD_AUDIO)
+        else if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                context!!, Manifest.permission.READ_EXTERNAL_STORAGE)
+                requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED){
             getPermissions()
 

@@ -80,7 +80,7 @@ class PopupReminderService : Service() {
         if(addAction) {
             val intent = Intent(baseContext, PopupReminderService::class.java)
             intent.putExtra(Defaults.DISMISS, true)
-            val pIntent = PendingIntent.getService(baseContext, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+            val pIntent = PendingIntent.getService(baseContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
             val action = NotificationCompat.Action.Builder(0, getString(R.string.dismiss), pIntent).build()
             builder.addAction(action!!)
         }

@@ -15,6 +15,9 @@ import android.widget.CompoundButton
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentAddReminderDetailsBinding
@@ -25,7 +28,6 @@ import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import com.google.android.gms.ads.InterstitialAd
 
 
 
@@ -69,7 +71,7 @@ class AddReminderDetailsFragment : Fragment() {
         initAd()
         initMediaPlayer()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
-        reminderDb = ReminderDB.getInstance(context!!)
+        reminderDb = ReminderDB.getInstance(requireContext())
 
         if(arguments != null) {
             mBinding.apply {
@@ -190,8 +192,8 @@ class AddReminderDetailsFragment : Fragment() {
 
     private fun showTimePickerDialog(){
         val cal = Calendar.getInstance()
-        val dialog = TimePickerDialog(activity!!,
-            TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
+        val dialog = TimePickerDialog(requireActivity(),
+            { _, hourOfDay, minute ->
                 pickedHour = hourOfDay.toString(); pickedMinute = minute.toString()
                 if(pickedHour?.length == 1) pickedHour = "0${pickedHour}"
                 if(pickedMinute?.length == 1) pickedMinute = "0${pickedMinute}"
@@ -203,8 +205,8 @@ class AddReminderDetailsFragment : Fragment() {
 
     private fun showDatePickerDialog(){
         val cal = Calendar.getInstance()
-        val dialog = DatePickerDialog(activity!!,
-            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+        val dialog = DatePickerDialog(requireActivity(),
+            { _, year, month, dayOfMonth ->
                 pickedYear = year.toString()
                 pickedMonth = (month+1).toString()
                 pickedDay = dayOfMonth.toString()
@@ -243,8 +245,7 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun showReminderSavedDialog(){
-        if(mInterstitialAd.isLoaded)
-            mInterstitialAd.show()
+        showAd()
 
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.success)
@@ -292,17 +293,34 @@ class AddReminderDetailsFragment : Fragment() {
         }
     }
 
-    private lateinit var mInterstitialAd: InterstitialAd
+    private var mInterstitialAd: InterstitialAd? = null
     private lateinit var adRequest: AdRequest
 
     private fun initAd(){
         adRequest = AdRequest.Builder().build()
-        mInterstitialAd = InterstitialAd(requireContext())
-        mInterstitialAd.apply {
-            adUnitId = getString(R.string.ad_process_completed_interstitial)
-            loadAd(adRequest)
-        }
+
+        InterstitialAd.load(
+            requireActivity(),
+            getString(R.string.ad_process_completed_interstitial),
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d(TAG, "onAdFailedToLoad: $adError")
+                mInterstitialAd = null
+            }
+
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                Log.d(TAG, "Ad was loaded.")
+                mInterstitialAd = interstitialAd
+            }
+        })
     }
 
-
+    private fun showAd(){
+        if (mInterstitialAd != null) {
+            mInterstitialAd?.show(requireActivity())
+        } else {
+            Log.d("TAG", "The interstitial ad wasn't ready yet.")
+        }
+    }
 }
