@@ -7,19 +7,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import com.github.javiersantos.appupdater.AppUpdater
-import com.primesol.speakingreminder.android.R
-import com.google.android.gms.ads.initialization.InitializationStatus
-
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
-
 import com.google.android.gms.ads.MobileAds
-
-
-
+import com.primesol.speakingreminder.android.R
 
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "ttt ${this::class.java.simpleName}"
+
+    var isFromSuccessPage = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,14 +44,13 @@ class MainActivity : AppCompatActivity() {
         //do nothing for now
     }
 
-    private fun requestNotificationPermission(){
+    private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S || "S" == Build.VERSION.CODENAME) {
             // Android 12 or Android 12 Beta
             if (NotificationManagerCompat.from(this).areNotificationsEnabled().not()) {
 
             }
-        }
-        else {
+        } else {
             when {
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -66,7 +60,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 else -> {
-                    if(NotificationManagerCompat.from(this).areNotificationsEnabled().not()){
+                    if (NotificationManagerCompat.from(this).areNotificationsEnabled().not()) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             requestPermissionLauncher.launch(
                                 Manifest.permission.POST_NOTIFICATIONS

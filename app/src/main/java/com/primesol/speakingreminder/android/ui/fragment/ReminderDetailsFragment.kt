@@ -87,7 +87,7 @@ class ReminderDetailsFragment : Fragment() {
     }
 
     private fun toggleReminderStatus(reminder: Reminder, isChecked: Boolean){
-        val reminderDB = ReminderDB.getInstance(context!!)
+        val reminderDB = ReminderDB.getInstance(requireContext())
 
         if(isChecked){
             val date = SimpleDateFormat(getString(R.string.db_date_format)).parse(reminder.dateTime) as Date
@@ -95,12 +95,12 @@ class ReminderDetailsFragment : Fragment() {
             calendar.time = date
             calendar.set(Calendar.SECOND, 0)
             reminder.status = Reminder.Status.STATUS_ACTIVE.name
-            ReminderReceiver.setAlarm(context!!, calendar, reminder.id!!)
+            ReminderReceiver.setAlarm(requireContext(), calendar, reminder.id!!)
             mBinding.ivStatus.setImageResource(R.drawable.circle_green)
         }
         else{
             reminder.status = Reminder.Status.STATUS_INACTIVE.name
-            ReminderReceiver.removeRegisteredAlarm(context!!, reminder)
+            ReminderReceiver.removeRegisteredAlarm(requireContext(), reminder)
             mBinding.ivStatus.setImageResource(R.drawable.circle_red)
         }
 
@@ -121,10 +121,10 @@ class ReminderDetailsFragment : Fragment() {
     }
 
     private fun deleteReminder(reminder: Reminder){
-        val reminderDb: ReminderDB? = ReminderDB.getInstance(context!!)
+        val reminderDb: ReminderDB? = ReminderDB.getInstance(requireContext())
         Thread(Runnable {
             reminderDb?.reminderDao()?.deleteReminder(reminder)
-            ReminderReceiver.removeRegisteredAlarm(context!!, reminder)
+            ReminderReceiver.removeRegisteredAlarm(requireContext(), reminder)
             //delete audio file
             try {
                 val file = File(reminder.audio)

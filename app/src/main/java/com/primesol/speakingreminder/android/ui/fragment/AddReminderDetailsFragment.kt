@@ -24,6 +24,7 @@ import com.primesol.speakingreminder.android.databinding.FragmentAddReminderDeta
 import com.primesol.speakingreminder.android.model.Reminder
 import com.primesol.speakingreminder.android.receiver.ReminderReceiver
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.ui.activity.MainActivity
 import com.primesol.speakingreminder.android.utils.MediaPlayerTon
 import java.io.File
 import java.text.SimpleDateFormat
@@ -68,7 +69,6 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun init(){
-        initAd()
         initMediaPlayer()
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(requireContext())
@@ -245,8 +245,7 @@ class AddReminderDetailsFragment : Fragment() {
     }
 
     private fun showReminderSavedDialog(){
-        showAd()
-
+        (requireActivity() as MainActivity).isFromSuccessPage = true
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.success)
         builder.setMessage(R.string.m_reminder_saved)
@@ -290,37 +289,6 @@ class AddReminderDetailsFragment : Fragment() {
         }
         catch (e:Exception){
             e.printStackTrace()
-        }
-    }
-
-    private var mInterstitialAd: InterstitialAd? = null
-    private lateinit var adRequest: AdRequest
-
-    private fun initAd(){
-        adRequest = AdRequest.Builder().build()
-
-        InterstitialAd.load(
-            requireActivity(),
-            getString(R.string.ad_process_completed_interstitial),
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                Log.d(TAG, "onAdFailedToLoad: $adError")
-                mInterstitialAd = null
-            }
-
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                Log.d(TAG, "Ad was loaded.")
-                mInterstitialAd = interstitialAd
-            }
-        })
-    }
-
-    private fun showAd(){
-        if (mInterstitialAd != null) {
-            mInterstitialAd?.show(requireActivity())
-        } else {
-            Log.d("TAG", "The interstitial ad wasn't ready yet.")
         }
     }
 }

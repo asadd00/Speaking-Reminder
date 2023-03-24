@@ -23,10 +23,16 @@ import androidx.fragment.app.Fragment
 import androidx.loader.content.CursorLoader
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentHomeBinding
 import com.primesol.speakingreminder.android.repository.ReminderDB
+import com.primesol.speakingreminder.android.ui.activity.MainActivity
 import com.primesol.speakingreminder.android.utils.Methods
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -58,8 +64,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
-        val adRequest: AdRequest = AdRequest.Builder().build()
-        mBinding.adView.loadAd(adRequest)
+        if((requireActivity() as MainActivity).isFromSuccessPage.not()){
+            loadBannerAd()
+        }
+        else {
+            initAd()
+        }
 
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(requireContext())
@@ -208,6 +218,54 @@ class HomeFragment : Fragment() {
                     return
                 }
             }
+        }
+    }
+
+    private var mInterstitialAd: InterstitialAd? = null
+    private lateinit var adRequest: AdRequest
+
+    private fun loadBannerAd(){
+        val adRequest: AdRequest = AdRequest.Builder().build()
+        mBinding.adView.loadAd(adRequest)
+    }
+
+    private fun initAd(){
+        adRequest = AdRequest.Builder().build()
+
+        InterstitialAd.load(
+            requireActivity(),
+            getString(R.string.ad_process_completed_interstitial),
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d(TAG, "onAdFailedToLoad: $adError")
+                    mInterstitialAd = null
+                    loadBannerAd()
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(TAG, "Ad was loaded.")
+                    mInterstitialAd = interstitialAd
+                    mInterstitialAd?.fullScreenContentCallback =
+                        object : FullScreenContentCallback() {
+                            override fun onAdDismissedFullScreenContent() {
+                                loadBannerAd()
+                            }
+                        }
+
+                    if((requireActivity() as MainActivity).isFromSuccessPage){
+                        showAd()
+                        (requireActivity() as MainActivity).isFromSuccessPage = false
+                    }
+                }
+            })
+    }
+
+    private fun showAd(){
+        if (mInterstitialAd != null) {
+            mInterstitialAd?.show(requireActivity())
+        } else {
+            Log.d("TAG", "The interstitial ad wasn't ready yet.")
         }
     }
 }
