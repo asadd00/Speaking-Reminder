@@ -9,7 +9,7 @@ android {
         applicationId "com.primesol.speakingreminder.android"
         minSdkVersion 23
         targetSdkVersion 33
-        versionCode 8
+        versionCode 9
         versionName "1.4.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
