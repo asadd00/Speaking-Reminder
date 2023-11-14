@@ -64,12 +64,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
-//        if((requireActivity() as MainActivity).isFromSuccessPage.not()){
-            loadBannerAd()
-//        }
-//        else {
-//            initAd()
-//        }
+        if((requireActivity() as MainActivity).isFromSuccessPage.not()){
+//            loadBannerAd()
+        }
+        else {
+            initAd()
+        }
 
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(requireContext())

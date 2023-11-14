@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
+import com.google.android.gms.ads.AdRequest
 
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentReminderDetailsBinding
@@ -47,6 +48,9 @@ class ReminderDetailsFragment : Fragment() {
     }
 
     private fun init(){
+        val adRequest: AdRequest = AdRequest.Builder().build()
+        mBinding.adView.loadAd(adRequest)
+
         initMediaPlayer()
         if(arguments != null){
             val reminder = arguments?.getSerializable(Reminder.REMINDER) as Reminder
