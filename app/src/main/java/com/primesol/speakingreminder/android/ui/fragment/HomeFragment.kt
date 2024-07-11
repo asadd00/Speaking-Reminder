@@ -4,12 +4,9 @@ import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.media.MediaRecorder
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -20,15 +17,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.loader.content.CursorLoader
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.primesol.speakingreminder.android.R
 import com.primesol.speakingreminder.android.databinding.FragmentHomeBinding
 import com.primesol.speakingreminder.android.repository.ReminderDB
@@ -36,7 +27,7 @@ import com.primesol.speakingreminder.android.ui.activity.MainActivity
 import com.primesol.speakingreminder.android.utils.Methods
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 class HomeFragment : Fragment() {
     private val TAG = "ttt ${this::class.java.simpleName}"
@@ -64,12 +55,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun init(){
-        if((requireActivity() as MainActivity).isFromSuccessPage.not()){
-//            loadBannerAd()
-        }
-        else {
-            initAd()
-        }
+        initAd()
 
         dateFormat = SimpleDateFormat(getString(R.string.db_date_format))
         reminderDb = ReminderDB.getInstance(requireContext())
@@ -221,7 +207,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private var mInterstitialAd: InterstitialAd? = null
     private lateinit var adRequest: AdRequest
 
     private fun loadBannerAd(){
@@ -231,41 +216,6 @@ class HomeFragment : Fragment() {
 
     private fun initAd(){
         adRequest = AdRequest.Builder().build()
-
-        InterstitialAd.load(
-            requireActivity(),
-            getString(R.string.ad_process_completed_interstitial),
-            adRequest,
-            object : InterstitialAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    Log.d(TAG, "onAdFailedToLoad: $adError")
-                    mInterstitialAd = null
-                    loadBannerAd()
-                }
-
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d(TAG, "Ad was loaded.")
-                    mInterstitialAd = interstitialAd
-                    mInterstitialAd?.fullScreenContentCallback =
-                        object : FullScreenContentCallback() {
-                            override fun onAdDismissedFullScreenContent() {
-                                loadBannerAd()
-                            }
-                        }
-
-                    if((requireActivity() as MainActivity).isFromSuccessPage){
-                        showAd()
-                        (requireActivity() as MainActivity).isFromSuccessPage = false
-                    }
-                }
-            })
-    }
-
-    private fun showAd(){
-        if (mInterstitialAd != null) {
-            mInterstitialAd?.show(requireActivity())
-        } else {
-            Log.d("TAG", "The interstitial ad wasn't ready yet.")
-        }
+        loadBannerAd()
     }
 }

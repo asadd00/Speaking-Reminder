@@ -25,7 +25,9 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1619147317570175~8305567648"/>
 
-        <activity android:name=".ui.activity.SplashActivity" android:theme="@style/NoBarAppTheme"
+        <activity android:name=".ui.activity.SplashActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoBarAppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,10 +35,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.PopupReminderActivity" />
-        <activity android:name=".ui.activity.MainActivity" />
+        <activity android:name=".ui.activity.PopupReminderActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activity.MainActivity"  android:screenOrientation="portrait"/>
 
-        <receiver android:name=".receiver.ReminderReceiver" />
+        <receiver android:name=".receiver.ReminderReceiver"/>
         <receiver android:name=".receiver.BootReceiver"
             android:exported="true">
             <intent-filter>

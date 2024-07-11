@@ -27,8 +27,8 @@
     <string name="confirmation">Confirmation</string>
     <string name="m_delete_confirm">Are you sure, you want to delete this reminder?</string>
     <string name="set_repeating">Set repeating</string>
-    <string name="list">List</string>
-    <string name="pick_file">Pick audio</string>
+    <string name="list">Reminder List</string>
+    <string name="pick_file">Pick audio from device</string>
     <string name="yearly">Yearly</string>
     <string name="monthly">Monthly</string>
     <string name="weekly">Weekly</string>

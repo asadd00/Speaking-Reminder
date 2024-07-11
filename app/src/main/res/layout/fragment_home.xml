@@ -17,6 +17,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.25"
             app:layout_constraintVertical_chainStyle="packed"
             app:rb_color="@color/colorPrimaryDark"
             app:rb_duration="2000"
